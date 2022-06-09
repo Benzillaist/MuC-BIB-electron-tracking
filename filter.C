@@ -10,34 +10,67 @@ void filter()
 
   ROOT::RDataFrame d(treeName, fileName, {"rcmox"});
 
-  TCanvas *c = new TCanvas("c", "Test Title");
+  TCanvas *c = new TCanvas();
 
-  //Creating reco pt graph
+  //Creating reconstructed transverse momentum
   c->SetTitle("Electron reconstructed transverse momentum");
-  myTree->Draw("sqrt(rcmox*rcmox + rcmoy*rcmoy)>>Reconstructed_pt(20, 0, 2000)", "rctyp == 11", "");
+  myTree->Draw("sqrt(rcmox*rcmox + rcmoy*rcmoy)>>reco_pt(20, 0, 2000)", "rctyp == 11", "");
+  TH1 *reco_pt = (TH1*)gDirectory->Get("reco_pt");
+  reco_pt->GetXaxis()->SetTitle("Transverse momentum");
+  reco_pt->GetYaxis()->SetTitle("Particle count");
   c->SaveAs("reco_pt.png");
 
   c->Clear();
 
   //Creating real particle pt graph
   c->SetTitle("Electron transverse momentum");
-  myTree->Draw("sqrt(mcmox*mcmox + mcmoy*mcmoy)>>Real_pt(20, 0, 2000)", "rctyp == 11", "");
+  myTree->Draw("sqrt(mcmox*mcmox + mcmoy*mcmoy)>>real_pt(20, 0, 2000)", "rctyp == 11", "");
+  TH1 *real_pt = (TH1*)gDirectory->Get("real_pt");
+  real_pt->GetXaxis()->SetTitle("Transverse momentum");
+  real_pt->GetYaxis()->SetTitle("Particle count");
   c->SaveAs("real_pt.png");
 
   c->Clear();
 
   //Creating reco azimuth graph
   c->SetTitle("Electron reconstructed azimuth");
-  myTree->Draw("atan(sqrt(rcmox*rcmox + rcmoy*rcmoy) / rcmoz)>>Reco_azimuth(20, -1.6, 1.6)", "rctyp == 11", "");  
+  myTree->Draw("atan(rcmoz / sqrt(rcmox*rcmox + rcmoy*rcmoy))>>reco_azimuth(20, -1.6, 1.6)", "rctyp == 11", "");
+  TH1 *reco_azimuth = (TH1*)gDirectory->Get("reco_azimuth");
+  reco_azimuth->GetXaxis()->SetTitle("Azimuth (Rads)");
+  reco_azimuth->GetYaxis()->SetTitle("Particle count");
   c->SaveAs("reco_azimuth.png");
 
   c->Clear();
   
   //Creating real particle azimuth graph
   c->SetTitle("Electron reconstructed azimuth");
-  myTree->Draw("atan(sqrt(mcmox*mcmox + mcmoy*mcmoy) / mcmoz)>>Real_azimuth(20, -1.6, 1.6)", "rctyp == 11", "");
+  myTree->Draw("atan(mcmoz/ sqrt(mcmox*mcmox + mcmoy*mcmoy))>>real_azimuth(20, -1.6, 1.6)", "rctyp == 11", "");
+  TH1 *real_azimuth = (TH1*)gDirectory->Get("real_azimuth");
+  real_azimuth->GetXaxis()->SetTitle("Azimuth (Rads)");
+  real_azimuth->GetYaxis()->SetTitle("Particle count");
   c->SaveAs("real_azimuth.png");
-  
-  //auto def_rcmpt = d.Define("rcmpt", [](Float_t rcmox, Float_t rcmoy) { return sqrt(rcmox[0]*rcmox[0] + rcmoy[0]*rcmoy[0]); }, {"rcmox", "rcmoy"});
 
+  c->Clear();
+
+  auto pt_Stack = new THStack("hs", "Stack of transverse momenta");
+
+  gStyle->SetPalette(kRust);
+
+  reco_pt->Draw("PLC");
+  real_pt->Draw("PLC SAME");
+
+  auto legend = new TLegend(0.1, 0.1, 0.48, 0.3);
+  legend->SetHeader("Transverse momenta", "C");
+  legend->AddEntry("reco_pt", "Reconstructed");
+  legend->AddEntry("real_pt", "Real");
+  legend->Draw();
+
+  TEfficiency* pt_Eff = 0;
+  TFile* eff_File = new TFile("effFile.root", "recreate");
+  
+  if(TEfficiency::CheckConsistency(*reco_pt, *real_pt)) {
+    pt_Eff = new TEfficiency(*reco_pt, *real_pt);
+    eff_File->Write();
+  } 
+   
 }
