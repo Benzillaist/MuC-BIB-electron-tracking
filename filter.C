@@ -22,7 +22,7 @@ void filter()
   TH1F *realAll_azimuth = new TH1F("rA_a", "MyLCTuple", 20, -1.6, 1.6);
   TH1F *truthAzimuth_Hist = new TH1F("a_a", "MyLCTuple", 20, -1.6, 1.6);
 
-  TH1D *realWeights_Hist = new TH1D("rW_H", "MyLCTuple", 20, 0, 1);
+  TH1D *realWeights_Hist = new TH1D("rW_H", "MyLCTuple", 26, 0, 1.3);
 
   //creates a reader that will traverse the events of the simulation
   TTreeReader myReader("MyLCTuple", openFile);
@@ -61,7 +61,7 @@ void filter()
 	  r2wMax_Index = i;
 	}
 	//adds the weight to a histogram
-	//TODO: fix, the histogram seems to have way more entries than are actually displayed
+	cout << "weight hist add: " << r2wTemp << endl;
 	realWeights_Hist->Fill(r2wTemp);
       }
 	
@@ -77,13 +77,12 @@ void filter()
       mcmoyTemp = mcmoy_RA.At(r2tTemp);
       mcmozTemp = mcmoz_RA.At(r2tTemp);
     
-      cout << "count: " << count << " instance: " << r2wMax_Index << " r2f: " << r2fTemp << " r2t: " << r2tTemp << " rctyp: " << rctyp_RA.At(r2fTemp) <<  " mcpdg: " << mcpdg_RA.At(r2tTemp) << " r2w: " << r2wTemp << endl;
+      //cout << "count: " << count << " instance: " << r2wMax_Index << " r2f: " << r2fTemp << " r2t: " << r2tTemp << " rctyp: " << rctyp_RA.At(r2fTemp) <<  " mcpdg: " << mcpdg_RA.At(r2tTemp) << " r2w: " << r2wTemp << endl;
       realPassed_pt->Fill(sqrt((mcmoxTemp*mcmoxTemp) + (mcmoyTemp*mcmoyTemp)));
       realPassed_azimuth->Fill(atan(mcmozTemp / sqrt((mcmoxTemp*mcmoxTemp) + (mcmoyTemp*mcmoyTemp))));
     }
 
     //loops over all particles to find the generating particle
-    //TODO: optimize this somehow
     for(int i = 0; i < mcmox_RA.GetSize(); i++) {
       if(mcgst_RA.At(i)) {
 	mcmoxTemp = mcmox_RA.At(i);
@@ -91,6 +90,7 @@ void filter()
 	mcmozTemp = mcmoz_RA.At(i);
 	realAll_pt->Fill(sqrt((mcmoxTemp*mcmoxTemp) + (mcmoyTemp*mcmoyTemp)));
 	realAll_azimuth->Fill(atan(mcmozTemp / sqrt((mcmoxTemp*mcmoxTemp) + (mcmoyTemp*mcmoyTemp))));
+	break; //this might cause issues in the future, double check to make sure that there are not two or more generating particles
       }
     }
     count++;
@@ -111,6 +111,7 @@ void filter()
   legend->AddEntry("realPassed_pt", "Real reconstructed");
   legend->Draw();
 
+  realAll_pt->SetTitle("pt of linked generating electrons and all generating electrons (no BIB)");
   realAll_pt->GetXaxis()->SetTitle("Transverse momentum (GeV)");
   realAll_pt->GetYaxis()->SetTitle("Count");
 
@@ -127,6 +128,7 @@ void filter()
   legend->AddEntry("realPassed_azimuth", "Real reconstructed");
   legend->Draw();
 
+  realAll_pt->SetTitle("azimuth of linked generating electrons and all generating electrons (no BIB)");
   realAll_azimuth->GetXaxis()->SetTitle("Azimuth (Rads)");
   realAll_azimuth->GetYaxis()->SetTitle("Count");
 
@@ -136,10 +138,11 @@ void filter()
 
   //draws the histogram that shows the distrobution of the relation weights
   realWeights_Hist->Draw();
+  realWeights_Hist->SetTitle("Weights of linked particles");
   realWeights_Hist->GetXaxis()->SetTitle("Weight");
   realWeights_Hist->GetYaxis()->SetTitle("Count");
   
-  c->SaveAs("realWeights.png");
+  c->SaveAs("recoLinkWeights.png");
 
   c->Clear();
 
