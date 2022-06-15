@@ -34,14 +34,11 @@ void filter()
   TTreeReaderArray<Float_t> mcmox_RA(myReader, "mcmox");
   TTreeReaderArray<Float_t> mcmoy_RA(myReader, "mcmoy");
   TTreeReaderArray<Float_t> mcmoz_RA(myReader, "mcmoz");
-  TTreeReaderArray<Float_t> rcmox_RA(myReader, "rcmox");
-  TTreeReaderArray<Float_t> rcmoy_RA(myReader, "rcmoy");
-  TTreeReaderArray<Float_t> rcmoz_RA(myReader, "rcmoz");
   TTreeReaderArray<int> rctyp_RA(myReader, "rctyp");
   TTreeReaderArray<int> mcpdg_RA(myReader, "mcpdg");
   TTreeReaderArray<int> mcgst_RA(myReader, "mcgst");
 
-  //temporary variable that will reduce the number of get operatons
+  //temporary variables that will reduce the number of get operatons
   int r2fTemp, r2tTemp;
   Float_t mcmoxTemp, mcmoyTemp, mcmozTemp, rcmoxTemp, rcmoyTemp, rcmozTemp, r2wTemp;
   Float_t r2wMax = 0;
@@ -50,34 +47,27 @@ void filter()
 
   //loops over each event
   while(myReader.Next()) {
-    
-    //loops over each array
-      
-    //finds which particle is real out of the reconstructed particles
-	
-    //calculates the transverse momentum and adds it to the histogram
+
+    //searches for the largest weight of the relationship that links a reconstructed particle to a particle that we know all the details of
     for(int i = 0; i < r2f_RA.GetSize(); i++) {
       r2tTemp = r2t_RA.At(i);
       r2fTemp = r2f_RA.At(i);
       r2wTemp = r2w_RA.At(i);
-      
+
+      //checks to see if those particles are electrons and if the paticle is an originial generating particle
       if(abs(mcpdg_RA.At(r2tTemp)) == 11 && abs(rctyp_RA.At(r2fTemp)) == 11 && mcgst_RA.At(r2tTemp)) {
 	if(r2wTemp > r2wMax) {
 	  r2wMax = r2wTemp;
 	  r2wMax_Index = i;
 	}
+	//adds the weight to a histogram
+	//TODO: fix, the histogram seems to have way more entries than are actually displayed
 	realWeights_Hist->Fill(r2wTemp);
       }
 	
-    //truthPt_Hist->Fill(sqrt((mcmoxTemp*mcmoxTemp) + (mcmoyTemp*mcmoyTemp)));
-
-    //calculates the polar angle and adds it to the histogram
-    //truthAzimuth_Hist->Fill(atan(mcmozTemp / sqrt((mcmoxTemp*mcmoxTemp) + (mcmoyTemp*mcmoyTemp))));
-
-    //realAll_pt->Fill(sqrt((mcmoxTemp*mcmoxTemp) + (mcmoyTemp*mcmoyTemp)));
-    //realAll_azimuth->Fill()
     }
 
+    //if a relationship was found between those particles, it is added to histograms
     if(r2wMax_Index != -1) {
       r2tTemp = r2t_RA.At(r2wMax_Index);
       r2fTemp = r2f_RA.At(r2wMax_Index);
@@ -91,7 +81,9 @@ void filter()
       realPassed_pt->Fill(sqrt((mcmoxTemp*mcmoxTemp) + (mcmoyTemp*mcmoyTemp)));
       realPassed_azimuth->Fill(atan(mcmozTemp / sqrt((mcmoxTemp*mcmoxTemp) + (mcmoyTemp*mcmoyTemp))));
     }
-    
+
+    //loops over all particles to find the generating particle
+    //TODO: optimize this somehow
     for(int i = 0; i < mcmox_RA.GetSize(); i++) {
       if(mcgst_RA.At(i)) {
 	mcmoxTemp = mcmox_RA.At(i);
@@ -107,10 +99,12 @@ void filter()
   }
 
   gStyle->SetPalette(kRust);
-  
+
+  //draws the two pt histograms on each other
   realAll_pt->Draw("PLC");
   realPassed_pt->Draw("PLC SAME");
 
+  //creates a legend for drawng the two pt histograms on each other
   TLegend *legend = new TLegend(0.1, 0.1, 0.48, 0.3);
   legend->SetHeader("Transverse momenta", "C");
   legend->AddEntry("realAll_pt", "All real");
@@ -120,8 +114,10 @@ void filter()
   realAll_pt->GetXaxis()->SetTitle("Transverse momentum (GeV)");
   realAll_pt->GetYaxis()->SetTitle("Count");
 
+  //saves the resulting graph to a local file
   c->SaveAs("compLink_pt.png");
 
+  //rinse and repeat for the azimuth instead of the transverse momentum
   realAll_azimuth->Draw("PLC");
   realPassed_azimuth->Draw("PLC SAME");
 
@@ -137,13 +133,17 @@ void filter()
   c->SaveAs("compLink_Azimuth.png");
 
   c->Clear();
-  
+
+  //draws the histogram that shows the distrobution of the relation weights
   realWeights_Hist->Draw();
   realWeights_Hist->GetXaxis()->SetTitle("Weight");
   realWeights_Hist->GetYaxis()->SetTitle("Count");
   
   c->SaveAs("realWeights.png");
 
+  c->Clear();
+
+  //draws an efficiency graph for transverse momentum
   TEfficiency* pt_Eff = 0;
   TFile* eff_File = new TFile("effFile.root", "recreate");
   
@@ -158,6 +158,7 @@ void filter()
 
   c->SaveAs("Eff_pt.png");
 
+  //draws an efficiency graph for the azimuth
   TEfficiency* azimuth_Eff = 0;
   eff_File = new TFile("effFile.root", "recreate");
 
@@ -173,7 +174,4 @@ void filter()
   c->SaveAs("Eff_azimuth.png");
 
   c->Clear();
-  //pt_Eff->SetBins(20, 0, 200);
-  //pt_Eff->Draw();
-  
 }
