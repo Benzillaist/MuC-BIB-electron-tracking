@@ -9,78 +9,17 @@ void filter()
   TTree *myTree = (TTree*)myFile->Get("MyLCTuple");
 
   TCanvas *c = new TCanvas();
-
-  //Creating reconstructed transverse momentum
-  c->SetTitle("Electron reconstructed transverse momentum");
-  myTree->Draw("sqrt(rcmox*rcmox + rcmoy*rcmoy)>>reco_pt(20, 0, 2000)", "abs(rctyp) == 11", "");
-  TH1 *reco_pt = (TH1*)gDirectory->Get("reco_pt");
-  reco_pt->SetTitle("Electron reconstructed transverse momentum (no BIB)");
-  reco_pt->GetXaxis()->SetTitle("Transverse momentum (GeV)");
-  reco_pt->GetYaxis()->SetTitle("Particle count");
-  c->SaveAs("reco_pt.png");
-
-  c->Clear();
-
-  //Creating real particle pt graph
-  c->SetTitle("Electron transverse momentum");
-  myTree->Draw("sqrt(mcmox*mcmox + mcmoy*mcmoy)>>real_pt(20, 0, 2000)", "abs(mcpdg) == 11", "");
-  TH1 *real_pt = (TH1*)gDirectory->Get("real_pt");
-  real_pt->SetTitle("Electron real transverse momentum (no BIB)");
-  real_pt->GetXaxis()->SetTitle("Transverse momentum (GeV)");
-  real_pt->GetYaxis()->SetTitle("Particle count");
-  c->SaveAs("real_pt.png");
-
-  c->Clear();
-
-  //Creating reco azimuth graph
-  c->SetTitle("Electron reconstructed azimuth");
-  myTree->Draw("atan(rcmoz / sqrt(rcmox*rcmox + rcmoy*rcmoy))>>reco_azimuth(20, -1.6, 1.6)", "abs(rctyp) == 11", "");
-  TH1 *reco_azimuth = (TH1*)gDirectory->Get("reco_azimuth");
-  reco_azimuth->SetTitle("Electron reconstructed transverse azimuth (no BIB)");
-  reco_azimuth->GetXaxis()->SetTitle("Azimuth (Rads)");
-  reco_azimuth->GetYaxis()->SetTitle("Particle count");
-  c->SaveAs("reco_azimuth.png");
-
-  c->Clear();
   
-  //Creating real particle azimuth graph
-  c->SetTitle("Electron reconstructed azimuth");
-  reco_azimuth->SetTitle("Electron reconstructed transverse azimuth (no BIB)");
-  myTree->Draw("atan(mcmoz / sqrt(mcmox*mcmox + mcmoy*mcmoy))>>real_azimuth(20, -1.6, 1.6)", "abs(mcpdg) == 11", "");
-  TH1 *real_azimuth = (TH1*)gDirectory->Get("real_azimuth");
-  real_azimuth->SetTitle("Electron real transverse azimuth (no BIB)");
-  real_azimuth->GetXaxis()->SetTitle("Azimuth (Rads)");
-  real_azimuth->GetYaxis()->SetTitle("Particle count");
-  c->SaveAs("real_azimuth.png");
-
-  c->Clear();
-
-  THStack *pt_Stack = new THStack("hs", "Stack of transverse momenta");
-
-  //sets the color scheme of the graph
-  gStyle->SetPalette(kRust);
-
-  //draws the histograms using the same color scheme (the "PLC" argument)
-  c->SetTitle("Combined real and reconstructed transverse momenta of electrons");
-  reco_pt->Draw("PLC");
-  real_pt->Draw("PLC SAME");
-
-  //create the legend
-  TLegend *legend = new TLegend(0.1, 0.1, 0.48, 0.3);
-  legend->SetHeader("Transverse momenta", "C");
-  legend->AddEntry("reco_pt", "Reconstructed");
-  legend->AddEntry("real_pt", "Real");
-  legend->Draw();
-
-  c->SaveAs("comb_pt.png");
-  c->Clear();
-
   //opens the file to be read
   auto openFile = TFile::Open("ntuple.root");
 
-  //defines the histogram
+  //defines the histograms
   c->SetTitle("Real reconstructed particles");
+  TH1F *realPassed_pt = new TH1F("h1", "MyLCTuple", 20, 0, 2000);
+  TH1F *realAll_pt = new TH1F("h1", "MyLCTuple", 20, 0, 2000);
   TH1F *truthPt_Hist = new TH1F("h1", "MyLCTuple", 20, 0, 2000);
+  TH1F *realPassed_azimuth = new TH1F("h1", "MyLCTuple", 20, -1.6, 1.6);
+  TH1F *realAll_azimuth = new TH1F("h1", "MyLCTuple", 20, -1.6, 1.6);
   TH1F *truthAzimuth_Hist = new TH1F("h1", "MyLCTuple", 20, -1.6, 1.6);
 
   //creates a reader that will traverse the events of the simulation
@@ -88,73 +27,86 @@ void filter()
 
   //arrays that hold the values of branches
   TTreeReaderArray<int> r2f_RA(myReader, "r2f");
+  TTreeReaderArray<int> r2t_RA(myReader, "r2t");
   TTreeReaderArray<Float_t> mcmox_RA(myReader, "mcmox");
   TTreeReaderArray<Float_t> mcmoy_RA(myReader, "mcmoy");
   TTreeReaderArray<Float_t> mcmoz_RA(myReader, "mcmoz");
+  TTreeReaderArray<Float_t> rcmox_RA(myReader, "rcmox");
+  TTreeReaderArray<Float_t> rcmoy_RA(myReader, "rcmoy");
+  TTreeReaderArray<Float_t> rcmoz_RA(myReader, "rcmoz");
   TTreeReaderArray<int> rctyp_RA(myReader, "rctyp");
+  TTreeReaderArray<int> mcpdg_RA(myReader, "mcpdg");
 
   //temporary variable that will reduce the number of get operatons
-  int r2fTemp;
-  Float_t mcmoxTemp, mcmoyTemp;
+  int r2fTemp, r2tTemp;
+  Float_t mcmoxTemp, mcmoyTemp, mcmozTemp, rcmoxTemp, rcmoyTemp, rcmozTemp;
 
   //loops over each event
   while(myReader.Next()) {
     
     //loops over each array
-    for(int i = 0; i < r2f_RA.GetSize(); i++) {
       
-      //finds which particle is real out of the reconstructed particles
-      r2fTemp = r2f_RA.At(i);
-      
-      //
-      if(abs(rctyp_RA.At(r2fTemp)) == 11) {
-	mcmoxTemp = mcmox_RA.At(r2fTemp);
-	mcmoyTemp = mcmoy_RA.At(r2fTemp);
+    //finds which particle is real out of the reconstructed particles
+    
+    mcmoxTemp = mcmox_RA.At(0);
+    mcmoyTemp = mcmoy_RA.At(0);
+    mcmozTemp = mcmoz_RA.At(0);
 	
-	//calculates the transverse momentum and adds it to the histogram
-	truthPt_Hist->Fill(sqrt((mcmoxTemp*mcmoxTemp) + (mcmoyTemp*mcmoyTemp)));
-	truthAzimuth_Hist->Fill(atan(mcmoz_RA.At(r2fTemp) / sqrt((mcmoxTemp*mcmoxTemp) + (mcmoyTemp*mcmoyTemp))));
-      }
+    //calculates the transverse momentum and adds it to the histogram
+    if(r2t_RA.At(0) == 0 && abs(rctyp_RA.At(0)) == 11) {
+      realPassed_pt->Fill(sqrt((mcmoxTemp*mcmoxTemp) + (mcmoyTemp*mcmoyTemp)));
+      realPassed_azimuth->Fill(atan(mcmozTemp / sqrt((mcmoxTemp*mcmoxTemp) + (mcmoyTemp*mcmoyTemp))));
     }
+	
+    realAll_pt->Fill(sqrt((mcmoxTemp*mcmoxTemp) + (mcmoyTemp*mcmoyTemp)));
+    realAll_azimuth->Fill(atan(mcmozTemp / sqrt((mcmoxTemp*mcmoxTemp) + (mcmoyTemp*mcmoyTemp))));
+    //truthPt_Hist->Fill(sqrt((mcmoxTemp*mcmoxTemp) + (mcmoyTemp*mcmoyTemp)));
+
+    //calculates the polar angle and adds it to the histogram
+    //truthAzimuth_Hist->Fill(atan(mcmozTemp / sqrt((mcmoxTemp*mcmoxTemp) + (mcmoyTemp*mcmoyTemp))));
+
+    //realAll_pt->Fill(sqrt((mcmoxTemp*mcmoxTemp) + (mcmoyTemp*mcmoyTemp)));
+    //realAll_azimuth->Fill()
   }
 
-  truthPt_Hist->SetLineWidth(5);
-
-  truthPt_Hist->Draw("PLC");
-  real_pt->Draw("PLC SAME");
+  gStyle->SetPalette(kRust);
+  
+  realAll_pt->Draw("PLC");
+  realPassed_pt->Draw("PLC SAME");
   //reco_pt->Draw("PLC SAME");
 
-  legend = new TLegend(0.1, 0.1, 0.48, 0.3);
+  TLegend *legend = new TLegend(0.1, 0.1, 0.48, 0.3);
   legend->SetHeader("Transverse momenta", "C");
-  legend->AddEntry("truthPt_Hist", "Real reconstructed");
-  legend->AddEntry("real_pt", "All real");
+  legend->AddEntry("realAll_pt", "All real");
+  legend->AddEntry("realPassed_pt", "Real reconstructed");
   //legend->AddEntry("reco_pt", "Reconstructed");
   legend->Draw();
 
-  truthPt_Hist->GetXaxis()->SetTitle("Transverse momentum (MeV)");
-  truthPt_Hist->GetYaxis()->SetTitle("Count");
+  realAll_pt->GetXaxis()->SetTitle("Transverse momentum (GeV)");
+  realAll_pt->GetYaxis()->SetTitle("Count");
 
-  c->SaveAs("recoLink_pt.png");
+  c->SaveAs("compLink_pt.png");
 
-  real_azimuth->Draw("PLC");
-  truthAzimuth_Hist->Draw("PLC SAME");
+  realAll_azimuth->Draw("PLC");
+  realPassed_azimuth->Draw("PLC SAME");
 
   legend = new TLegend(0.1, 0.1, 0.48, 0.3);
   legend->SetHeader("Azimuth", "C");
-  legend->AddEntry("truthAzimuth_Hist", "Real reconstructed");
-  legend->AddEntry("real_azimuth", "All real");
+  legend->AddEntry("realAll_azimuth", "All real");
+  legend->AddEntry("realPassed_azimuth", "Real reconstructed");
   legend->Draw();
 
-  truthAzimuth_Hist->GetXaxis()->SetTitle("Azimuth (Rads)");
-  truthAzimuth_Hist->GetYaxis()->SetTitle("Count");
+  realAll_azimuth->GetXaxis()->SetTitle("Azimuth (Rads)");
+  realAll_azimuth->GetYaxis()->SetTitle("Count");
 
-  c->SaveAs("recoLink_Azimuth.png");
+  c->SaveAs("compLink_Azimuth.png");
+  
   
   TEfficiency* pt_Eff = 0;
   TFile* eff_File = new TFile("effFile.root", "recreate");
   
-  if(TEfficiency::CheckConsistency(*truthPt_Hist, *real_pt)) {
-    pt_Eff = new TEfficiency(*truthPt_Hist, *real_pt);
+  if(TEfficiency::CheckConsistency(*realPassed_pt, *realAll_pt)) {
+    pt_Eff = new TEfficiency(*realPassed_pt, *realAll_pt);
     eff_File->Write();
   }
 
@@ -162,13 +114,13 @@ void filter()
   
   pt_Eff->Draw();
 
-  c->SaveAs("recoEff_pt.png");
+  c->SaveAs("Eff_pt.png");
 
   TEfficiency* azimuth_Eff = 0;
   eff_File = new TFile("effFile.root", "recreate");
 
-  if(TEfficiency::CheckConsistency(*truthAzimuth_Hist, *real_azimuth)) {
-    azimuth_Eff = new TEfficiency(*truthAzimuth_Hist, *real_azimuth);
+  if(TEfficiency::CheckConsistency(*realPassed_azimuth, *realAll_azimuth)) {
+    azimuth_Eff = new TEfficiency(*realPassed_azimuth, *realAll_azimuth);
     eff_File->Write();
   }
 
@@ -176,5 +128,10 @@ void filter()
 
   azimuth_Eff->Draw();
 
-  c->SaveAs("recoEff_azimuth.png");
+  c->SaveAs("Eff_azimuth.png");
+
+  c->Clear();
+  //pt_Eff->SetBins(20, 0, 200);
+  //pt_Eff->Draw();
+  
 }
