@@ -36,12 +36,12 @@ void filter()
   //histograms for storing differences between values
   TH1F *diffPt_Hist = new TH1F("diffPt", "MyLCTuple", 40, -500, 1500); //difference between reconstructed linked particles and the truth particles in transverse momentum
   TH1F *deltaR_Hist = new TH1F("deltaR", "MyLCTuple", 25, 0, 0.0025); //delta R (delta polar angle and azimuth combined)
-  TH1F *accEPSum_pt = new TH1F("EPS_pt", "Summed electrons and protons", 20, 0, 2000); //accuracy of transverse momentum reconstruction when the reconstructed particle is made up of all reconstructed electrons and photons
-  TH1F *accEPSum_PA = new TH1F("EPS_PA", "Summed electrons and protons", 20, 0, 3.2); //accuracy of polar angle reconstructed when the reconstruction particle is made up of all reconstructed electrons and photons
-  TH1F *accEPSum_azimuth = new TH1F("EPS_a", "Summed electrons and protons", 20, -3.2, 3.2); //accuracy of azimuth reconstruction when the reconstructed particle is made up of all reconstructed electrons and photons
-  TH1F *accBestMatch_pt = new TH1F("EPS_pt", "Transverse momentum accuracy of best match link", 20, 0, 2000); //accuracy of transverse momentum reconstruction when the reconstructed particle is the best match
-  TH1F *accBestMatch_PA = new TH1F("EPS_PA", "Polar angle accuracy of best match link", 20, 0, 3.2); //accuracy of polar angle reconstructed when the reconstruction particle is the best match
-  TH1F *accBestMatch_azimuth = new TH1F("EPS_a", "Azimuth accuracy of best match link", 20, -3.2, 3.2); //accuracy of azimuth reconstruction when the reconstructed particle is made up of the best match
+  TH1F *accEPSum_pt = new TH1F("aEP_pt", "Summed electrons and protons", 20, 0, 2000); //accuracy of transverse momentum reconstruction when the reconstructed particle is made up of all reconstructed electrons and photons
+  TH1F *accEPSum_PA = new TH1F("aEP_PA", "Summed electrons and protons", 20, 0, 3.2); //accuracy of polar angle reconstructed when the reconstruction particle is made up of all reconstructed electrons and photons
+  TH1F *accEPSum_azimuth = new TH1F("aEP_a", "Summed electrons and protons", 20, -3.2, 3.2); //accuracy of azimuth reconstruction when the reconstructed particle is made up of all reconstructed electrons and photons
+  TH1F *accBestMatch_pt = new TH1F("aBM_pt", "Transverse momentum accuracy of best match link", 20, 0, 2000); //accuracy of transverse momentum reconstruction when the reconstructed particle is the best match
+  TH1F *accBestMatch_PA = new TH1F("aMB_PA", "Polar angle accuracy of best match link", 20, 0, 3.2); //accuracy of polar angle reconstructed when the reconstruction particle is the best match
+  TH1F *accBestMatch_azimuth = new TH1F("aMB_a", "Azimuth accuracy of best match link", 20, -3.2, 3.2); //accuracy of azimuth reconstruction when the reconstructed particle is made up of the best match
 
   //histograms for storing attributes unique to certain reconstructed types of particles
   //transverse momentum
