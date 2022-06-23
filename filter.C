@@ -11,30 +11,47 @@ void filter()
   //opens the file to be read
   auto openFile = TFile::Open("ntuple.root");
 
-  //defines the histograms
-  TH1F *realPassed_pt = new TH1F("rP_pt", "Linked electrons", 20, 0, 2000);
-  TH1F *realAllPassed_pt = new TH1F("AP_pt", "Linked particles", 20, 0, 2000);
-  TH1F *realAll_pt = new TH1F("rA_pt", "All electrons", 20, 0, 2000);
-  TH1F *realPassed_PA = new TH1F("rP_PA", "Linked electrons", 20, 0, 3.2);
+  /////////////////////////
+  //Histogram definitions//
+  /////////////////////////
+
+  //histograms for attributes of electrons
+  //transverse momentum
+  TH1F *realPassed_pt = new TH1F("rP_pt", "Linked electrons", 20, 0, 2000); //transverse momentum of electrons that are linked to reconstructed electrons
+  TH1F *realAllPassed_pt = new TH1F("AP_pt", "Linked particles", 20, 0, 2000); //transverse momentum All truth electrons
+  TH1F *realAll_pt = new TH1F("rA_pt", "All electrons", 20, 0, 2000); //Links the most likely particles together, regardless of reconstructed type
+  //Polar angle
+  TH1F *realPassed_PA = new TH1F("rP_PA", "Linked electrons", 20, 0, 3.2); //see above
   TH1F *realAllPassed_PA = new TH1F("AP_PA", "Linked particles", 20, 0, 3.2);
   TH1F *realAll_PA = new TH1F("rA_PA", "All electrons", 20, 0, 3.2);
-  TH1F *realPassed_azimuth = new TH1F("rP_a", "Linked electrons", 20, -3.2, 3.2);
+  //Azimuth
+  TH1F *realPassed_azimuth = new TH1F("rP_a", "Linked electrons", 20, -3.2, 3.2); //see above
   TH1F *realAllPassed_azimuth = new TH1F("AP_a", "Linked particles", 20, -3.2, 3.2);
   TH1F *realAll_azimuth = new TH1F("rA_a", "All electrons", 20, -3.2, 3.2);
-  TH1D *realElWeights_Hist = new TH1D("realElWeights", "Reco link electron weights", 26, 0, 1.3);
-  TH1D *realAllWeights_Hist = new TH1D("realAllWeights", "Reco link all weights", 26, 0, 1.3);
-  TH1F *diffPt_Hist = new TH1F("diffPt", "MyLCTuple", 40, -500, 1500);
-  TH1F *deltaR_Hist = new TH1F("deltaR", "MyLCTuple", 25, 0, 0.0025);
-  TH1F *accEPSum_pt = new TH1F("EPS_pt", "Summed electrons and protons", 20, 0, 2000);
-  TH1F *accEPSum_PA = new TH1F("EPS_PA", "Summed electrons and protons", 20, 0, 3.2);
-  TH1F *accEPSum_azimuth = new TH1F("EPS_a", "Summed electrons and protons", 20, -3.2, 3.2);
 
+  //histograms for weights of particles
+  TH1D *realElWeights_Hist = new TH1D("realElWeights", "Reco link electron weights", 26, 0, 1.3); //link weights of reconstructed electrons linked to truth electrons
+  TH1D *realAllWeights_Hist = new TH1D("realAllWeights", "Reco link all weights", 26, 0, 1.3); // link weights of particles linked to truth electrons
+
+  //histograms for storing differences between values
+  TH1F *diffPt_Hist = new TH1F("diffPt", "MyLCTuple", 40, -500, 1500); //difference between reconstructed linked particles and the truth particles in transverse momentum
+  TH1F *deltaR_Hist = new TH1F("deltaR", "MyLCTuple", 25, 0, 0.0025); //delta R (delta polar angle and azimuth combined)
+  TH1F *accEPSum_pt = new TH1F("EPS_pt", "Summed electrons and protons", 20, 0, 2000); //accuracy of transverse momentum reconstruction when the reconstructed particle is made up of all reconstructed electrons and photons
+  TH1F *accEPSum_PA = new TH1F("EPS_PA", "Summed electrons and protons", 20, 0, 3.2); //accuracy of polar angle reconstructed when the reconstruction particle is made up of all reconstructed electrons and photons
+  TH1F *accEPSum_azimuth = new TH1F("EPS_a", "Summed electrons and protons", 20, -3.2, 3.2); //accuracy of azimuth reconstruction when the reconstructed particle is made up of all reconstructed electrons and photons
+
+  //histograms for storing attributes unique to certain reconstructed types of particles
+  //transverse momentum
   TH1F *electronReco_pt = new TH1F("elRec_pt", "Electron pt", 20, 0, 2000);
   TH1F *photonReco_pt = new TH1F("phRec_pt", "Photon pt", 20, 0, 2000);
   TH1F *neutronReco_pt = new TH1F("nuRec_pt", "Neutron pt", 20, 0, 2000);
+
+  //polar angle
   TH1F *electronReco_PA = new TH1F("elRec_PA", "Electron PA", 20, 0, 3.2);
   TH1F *photonReco_PA = new TH1F("phRec_PA", "Photon PA", 20, 0, 3.2);
   TH1F *neutronReco_PA = new TH1F("nuRec_PA", "Neutron PA", 20, 0, 3.2);
+
+  //azimuth
   TH1F *electronReco_azimuth = new TH1F("elRec_a", "Electron azimuth", 20, -3.2, 3.2);
   TH1F *photonReco_azimuth = new TH1F("phRec_a", "Photon azimuth", 20, -3.2, 3.2);
   TH1F *neutronReco_azimuth = new TH1F("nuRec_a", "Neutron azimuth", 20, -3.2, 3.2);
@@ -43,18 +60,18 @@ void filter()
   TTreeReader myReader("MyLCTuple", openFile);
 
   //arrays that hold the values of branches
-  TTreeReaderArray<int> r2f_RA(myReader, "r2f");
-  TTreeReaderArray<int> r2t_RA(myReader, "r2t");
-  TTreeReaderArray<Float_t> r2w_RA(myReader, "r2w");
-  TTreeReaderArray<Float_t> mcmox_RA(myReader, "mcmox");
-  TTreeReaderArray<Float_t> mcmoy_RA(myReader, "mcmoy");
-  TTreeReaderArray<Float_t> mcmoz_RA(myReader, "mcmoz");
-  TTreeReaderArray<Float_t> rcmox_RA(myReader, "rcmox");
-  TTreeReaderArray<Float_t> rcmoy_RA(myReader, "rcmoy");
-  TTreeReaderArray<Float_t> rcmoz_RA(myReader, "rcmoz");
-  TTreeReaderArray<int> rctyp_RA(myReader, "rctyp");
-  TTreeReaderArray<int> mcpdg_RA(myReader, "mcpdg");
-  TTreeReaderArray<int> mcgst_RA(myReader, "mcgst");
+  TTreeReaderArray<int> r2f_RA(myReader, "r2f"); //link reco particle index number
+  TTreeReaderArray<int> r2t_RA(myReader, "r2t"); //link truth partcie index number
+  TTreeReaderArray<Float_t> r2w_RA(myReader, "r2w"); //link weight
+  TTreeReaderArray<Float_t> mcmox_RA(myReader, "mcmox"); //truth x momentum
+  TTreeReaderArray<Float_t> mcmoy_RA(myReader, "mcmoy"); //truth y momentum
+  TTreeReaderArray<Float_t> mcmoz_RA(myReader, "mcmoz"); //truth z momentum
+  TTreeReaderArray<Float_t> rcmox_RA(myReader, "rcmox"); //reco x momentum
+  TTreeReaderArray<Float_t> rcmoy_RA(myReader, "rcmoy"); //reco y momentum
+  TTreeReaderArray<Float_t> rcmoz_RA(myReader, "rcmoz"); //reco z momentum
+  TTreeReaderArray<int> rctyp_RA(myReader, "rctyp"); //reconstructed type (11 = electron, 22 = photon, 2112 = neutron)
+  TTreeReaderArray<int> mcpdg_RA(myReader, "mcpdg"); //truth type (see list above)
+  TTreeReaderArray<int> mcgst_RA(myReader, "mcgst"); //is this particle a generating particle or not
 
   //temporary variables that will reduce the number of get operatons
   int r2fTemp, r2tTemp;
@@ -90,10 +107,13 @@ void filter()
 
     //if a relationship was found between those particles, it is added to histograms
     if(r2wMax_Index != -1) {
+
+      //find the particles that the particle linker refers to
       r2tTemp = r2t_RA.At(r2wMax_Index);
       r2fTemp = r2f_RA.At(r2wMax_Index);
       r2wTemp = r2w_RA.At(r2wMax_Index);
-      
+
+      //finds the momenta of the reco and truth particles
       mcmoxTemp = mcmox_RA.At(r2tTemp);
       mcmoyTemp = mcmoy_RA.At(r2tTemp);
       mcmozTemp = mcmoz_RA.At(r2tTemp);
@@ -101,32 +121,37 @@ void filter()
       rcmoyTemp = rcmoy_RA.At(r2fTemp);
       rcmozTemp = rcmoz_RA.At(r2fTemp);
 
+      //calculates the attributes (transverse momentum, polar angle, and azimuth)
       mPtTemp = sqrt((mcmoxTemp*mcmoxTemp) + (mcmoyTemp*mcmoyTemp));
       mPATemp = atan2(mPtTemp, mcmozTemp);
       mATemp = atan2(mcmoxTemp, mcmoyTemp);
-
       rPtTemp = sqrt((rcmoxTemp*rcmoxTemp) + (rcmoyTemp*rcmoyTemp));
       rPATemp = atan2(rPtTemp, rcmozTemp);
       rATemp = atan2(rcmoxTemp, rcmoyTemp);
 
+      //finds the differences between truth and reconstructed attributes
       dPATemp = mPATemp - rPATemp;
       dATemp = mATemp - rATemp;
 
+      //fills in histograms with attributes
       realPassed_pt->Fill(mPtTemp);
       realPassed_PA->Fill(mPATemp);
       realPassed_azimuth->Fill(mATemp);
 
+      //fills in histograms with differences
       diffPt_Hist->Fill(mPtTemp - rPtTemp);
       deltaR_Hist->Fill(sqrt((dPATemp*dPATemp) + (dATemp*dATemp)));
       }
 
+    //if no link was found between a reconstructed and truth electron, I expand the search to reconstructed photons as well
     if(r2wMax_Index == -1) {
       for(int i = 0; i < r2f_RA.GetSize(); i++) {
+	//find the two particles in which the link occurs between
 	r2tTemp = r2t_RA.At(i);
 	r2fTemp = r2f_RA.At(i);
 	r2wTemp = r2w_RA.At(i);
 
-	//checks to see if those particles are electrons and if the paticle is an originial generating particle
+	//checks to see if the truth particle is an electron, if the reconstructed particle is a photon, and if the truth particle is an originial generating particle
 	if(abs(mcpdg_RA.At(r2tTemp)) == 11 && abs(rctyp_RA.At(r2fTemp)) == 22 && mcgst_RA.At(r2tTemp)) {
 	  if(r2wTemp > r2wMax) {
 	    r2wMax = r2wTemp;
@@ -138,6 +163,7 @@ void filter()
       }
     }
 
+    //repeats the previous steps that adds data to histograms but instead adds it to the histograms that holds links between photons and electrons as well
     if(r2wMax_Index != -1) {
       r2tTemp = r2t_RA.At(r2wMax_Index);
       r2fTemp = r2f_RA.At(r2wMax_Index);
@@ -169,7 +195,8 @@ void filter()
 	mPtTemp = sqrt((mcmoxTemp*mcmoxTemp) + (mcmoyTemp*mcmoyTemp));
 	mPATemp = atan2(mPtTemp, mcmozTemp);
 	mATemp = atan2(mcmoxTemp, mcmoyTemp);
-	
+
+	//adds generating particle to histogram
 	realAll_pt->Fill(mPtTemp);
 	realAll_PA->Fill(mPATemp);
 	realAll_azimuth->Fill(mATemp);
@@ -177,33 +204,42 @@ void filter()
       }
     }
 
+    //resets data sum variables
     rcmoxSumTemp = 0;
     rcmoySumTemp = 0;
     rcmozSumTemp = 0;
 
+    //loops over all reconstructed particles
     for(int i = 0; i < rcmox_RA.GetSize(); i++) {
       rcmoxTemp = rcmox_RA.At(i);
       rcmoyTemp = rcmoy_RA.At(i);
       rcmozTemp = rcmoz_RA.At(i);
 
+      //if that particle is an electron or photon, add it the sum variables (this accounts for particle mis-identification)
       if(abs(rctyp_RA.At(i)) == 11 || abs(rctyp_RA.At(i)) == 22) {
 	rcmoxSumTemp += rcmoxTemp;
 	rcmoySumTemp += rcmoyTemp;
 	rcmozSumTemp += rcmozTemp;
       }
 
+      //calculates the 
       rPtTemp = sqrt((rcmoxTemp*rcmoxTemp) + (rcmoyTemp*rcmoyTemp));
       rPATemp = atan2(rPtTemp, rcmozTemp);
       rATemp = atan2(rcmoxTemp, rcmoyTemp);
-      
+
+      //if the particle is a electron, add it to one set of histograms
       if(abs(rctyp_RA.At(i)) == 11) {
 	electronReco_pt->Fill(rPtTemp);
 	electronReco_PA->Fill(rPATemp);
 	electronReco_azimuth->Fill(rATemp);
+
+	//if the particle is a photon, add it to another set of histograms
       } else if(abs(rctyp_RA.At(i)) == 22) {
 	photonReco_pt->Fill(rPtTemp);
 	photonReco_PA->Fill(rPATemp);
 	photonReco_azimuth->Fill(rATemp);
+
+	//if the particle is a neutron, add it to a third set of histograms
       } else if(abs(rctyp_RA.At(i)) == 2112) {
 	neutronReco_pt->Fill(rPtTemp);
 	neutronReco_PA->Fill(rPATemp);
@@ -214,6 +250,7 @@ void filter()
     r2wMax = 0;
     r2wMax_Index = -1;
 
+    //finds the difference between the truth and reconstructed particles (sum of photons and electrons)
     accEPSum_pt->Fill(mPtTemp - sqrt((rcmoxSumTemp*rcmoxSumTemp) + (rcmoySumTemp*rcmoySumTemp)));
     accEPSum_PA->Fill(mPATemp - atan2(sqrt((rcmoxSumTemp*rcmoxSumTemp) + (rcmoySumTemp*rcmoySumTemp)), rcmozSumTemp));
     accEPSum_azimuth->Fill(mATemp - atan2(rcmoxSumTemp, rcmoySumTemp));
@@ -501,7 +538,8 @@ void filter()
   //draws an efficiency graph for transverse momentum
   TEfficiency* pt_Eff = new TEfficiency("pt_Eff", "Efficiency of transverse momentum reconstruction;Transverse momentum (GeV);Efficiency", 20, 0, 2000);
   TFile* eff_File = new TFile("effFile.root", "recreate");
-  
+
+  //checks to make sure if the two histograms are compatable to make an efficiency histogram
   if(TEfficiency::CheckConsistency(*realPassed_pt, *realAll_pt)) {
     pt_Eff->SetPassedHistogram(*realPassed_pt, "f");
     pt_Eff->SetTotalHistogram(*realAll_pt, "f");
@@ -519,7 +557,8 @@ void filter()
   //draws an efficiency graph for the polar angle
   TEfficiency* PA_Eff = new TEfficiency("PA_Eff", "Efficiency of polar angle reconstruction;Polar angle (Rads);Efficiency", 20, 0, 1.6);
   eff_File = new TFile("effFile.root", "recreate");
-
+  
+  //checks to make sure if the two histograms are compatable to make an efficiency histogram
   if(TEfficiency::CheckConsistency(*realPassed_PA, *realAll_PA)) {
     PA_Eff->SetPassedHistogram(*realPassed_PA, "f");
     PA_Eff->SetTotalHistogram(*realAll_PA, "f");
@@ -538,6 +577,7 @@ void filter()
   TEfficiency* azimuth_Eff = new TEfficiency("azimuth_Eff", "Efficiency of azimuth reconstruction;Azimuth (Rads);Efficiency", 20, -1.6, 1.6);
   eff_File = new TFile("effFile.root", "recreate");
 
+  //checks to make sure if the two histograms are compatable to make an efficiency histogram
   if(TEfficiency::CheckConsistency(*realPassed_azimuth, *realAll_azimuth)) {
     azimuth_Eff->SetPassedHistogram(*realPassed_azimuth, "f");
     azimuth_Eff->SetTotalHistogram(*realAll_azimuth, "f");
@@ -556,7 +596,8 @@ void filter()
   //draws an efficiency graph for transverse momentum
   TEfficiency* ptAll_Eff = new TEfficiency("pt_Eff", "Efficiency of transverse momentum reconstruction for all particles;Transverse momentum (GeV);Efficiency", 20, 0, 2000);
   eff_File = new TFile("effFile.root", "recreate");
-
+  
+  //checks to make sure if the two histograms are compatable to make an efficiency histogram
   if(TEfficiency::CheckConsistency(*realAllPassed_pt, *realAll_pt)) {
     ptAll_Eff->SetPassedHistogram(*realAllPassed_pt, "f");
     ptAll_Eff->SetTotalHistogram(*realAll_pt, "f");
@@ -575,6 +616,7 @@ void filter()
   TEfficiency* PAAll_Eff = new TEfficiency("PA_Eff", "Efficiency of polar angle reconstruction for all particles;Polar angle (Rads);Efficiency", 20, 0, 1.6);
   eff_File = new TFile("effFile.root", "recreate");
 
+  //checks to make sure if the two histograms are compatable to make an efficiency histogram
   if(TEfficiency::CheckConsistency(*realAllPassed_PA, *realAll_PA)) {
     PAAll_Eff->SetPassedHistogram(*realAllPassed_PA, "f");
     PAAll_Eff->SetTotalHistogram(*realAll_PA, "f");
@@ -589,11 +631,12 @@ void filter()
   c->Close();
   c = new TCanvas();
 
-  //draws an efficiency graph for the azimuth
+  //draws an efficiency graph for the azimuth for 
   TEfficiency* azimuthAll_Eff = new TEfficiency("azimuth_Eff", "Efficiency of azimuth reconstruction for all particles;Azimuth (Rads);Eff\
 iciency", 20, -1.6, 1.6);
   eff_File = new TFile("effFile.root", "recreate");
 
+  //checks to make sure if the two histograms are compatable to make an efficiency histogram
   if(TEfficiency::CheckConsistency(*realAllPassed_azimuth, *realAll_azimuth)) {
     azimuthAll_Eff->SetPassedHistogram(*realAllPassed_azimuth, "f");
     azimuthAll_Eff->SetTotalHistogram(*realAll_azimuth, "f");
