@@ -39,6 +39,9 @@ void filter()
   TH1F *accEPSum_pt = new TH1F("EPS_pt", "Summed electrons and protons", 20, 0, 2000); //accuracy of transverse momentum reconstruction when the reconstructed particle is made up of all reconstructed electrons and photons
   TH1F *accEPSum_PA = new TH1F("EPS_PA", "Summed electrons and protons", 20, 0, 3.2); //accuracy of polar angle reconstructed when the reconstruction particle is made up of all reconstructed electrons and photons
   TH1F *accEPSum_azimuth = new TH1F("EPS_a", "Summed electrons and protons", 20, -3.2, 3.2); //accuracy of azimuth reconstruction when the reconstructed particle is made up of all reconstructed electrons and photons
+  TH1F *accBestMatch_pt = new TH1F("EPS_pt", "Transverse momentum accuracy of best match link", 20, 0, 2000); //accuracy of transverse momentum reconstruction when the reconstructed particle is the best match
+  TH1F *accBestMatch_PA = new TH1F("EPS_PA", "Polar angle accuracy of best match link", 20, 0, 3.2); //accuracy of polar angle reconstructed when the reconstruction particle is the best match
+  TH1F *accBestMatch_azimuth = new TH1F("EPS_a", "Azimuth accuracy of best match link", 20, -3.2, 3.2); //accuracy of azimuth reconstruction when the reconstructed particle is made up of the best match
 
   //histograms for storing attributes unique to certain reconstructed types of particles
   //transverse momentum
@@ -75,7 +78,7 @@ void filter()
 
   //temporary variables that will reduce the number of get operatons
   int r2fTemp, r2tTemp;
-  Float_t mcmoxTemp, mcmoyTemp, mcmozTemp, rcmoxTemp, rcmoyTemp, rcmozTemp, r2wTemp, mPtTemp, mPATemp, mATemp, rPtTemp, rPATemp, rATemp, deltaRTemp, dPATemp, dATemp, rcmoxSumTemp, rcmoySumTemp, rcmozSumTemp;
+  Float_t mcmoxTemp, mcmoyTemp, mcmozTemp, rcmoxTemp, rcmoyTemp, rcmozTemp, r2wTemp, mPtTemp, mPATemp, mATemp, rPtTemp, rPATemp, rATemp, deltaRTemp, dPATemp, dATemp, rcmoxSumTemp, rcmoySumTemp, rcmozSumTemp, BMptTemp, BMPATemp, BMATemp;
   Float_t r2wMax = 0;
   int r2wMax_Index = -1;
   int count = 0;
@@ -176,13 +179,13 @@ void filter()
       rcmoyTemp = rcmoy_RA.At(r2fTemp);
       rcmozTemp = rcmoz_RA.At(r2fTemp);
 
-      mPtTemp = sqrt((mcmoxTemp*mcmoxTemp) + (mcmoyTemp*mcmoyTemp));
-      mPATemp = atan2(mPtTemp, mcmozTemp);
-      mATemp = atan2(mcmoxTemp, mcmoyTemp);
+      BMptTemp = sqrt((mcmoxTemp*mcmoxTemp) + (mcmoyTemp*mcmoyTemp));
+      BMPATemp = atan2(mPtTemp, mcmozTemp);
+      BMATemp = atan2(mcmoxTemp, mcmoyTemp);
 
-      realAllPassed_pt->Fill(mPtTemp);
-      realAllPassed_PA->Fill(mPATemp);
-      realAllPassed_azimuth->Fill(mATemp);
+      realAllPassed_pt->Fill(BMptTemp);
+      realAllPassed_PA->Fill(BMPATemp);
+      realAllPassed_azimuth->Fill(BMATemp);
     }
 
     //loops over all particles to find the generating particle
@@ -254,6 +257,10 @@ void filter()
     accEPSum_pt->Fill(mPtTemp - sqrt((rcmoxSumTemp*rcmoxSumTemp) + (rcmoySumTemp*rcmoySumTemp)));
     accEPSum_PA->Fill(mPATemp - atan2(sqrt((rcmoxSumTemp*rcmoxSumTemp) + (rcmoySumTemp*rcmoySumTemp)), rcmozSumTemp));
     accEPSum_azimuth->Fill(mATemp - atan2(rcmoxSumTemp, rcmoySumTemp));
+
+    accBestMatch_pt->Fill(mPtTemp - BMptTemp);
+    accBestMatch_PA->Fill(mPATemp - BMPATemp);
+    accBestMatch_azimuth->Fill(mATemp - BMATemp);
   }
 
   gStyle->SetPalette(kRust);
@@ -493,7 +500,7 @@ void filter()
   accEPSum_pt->GetXaxis()->SetTitle("Transverse momentum (GeV)");
   accEPSum_pt->GetYaxis()->SetTitle("Count");
 
-  c->SaveAs("filterOutput/compEPSumLink_pt.png");
+  c->SaveAs("filterOutput/accEPSumLink_pt.png");
   c->Close();
   c = new TCanvas();
   
@@ -503,7 +510,7 @@ void filter()
   accEPSum_PA->GetXaxis()->SetTitle("Polar angle (Rads)");
   accEPSum_PA->GetYaxis()->SetTitle("Count");
 
-  c->SaveAs("filterOutput/compEPSumLink_PA.png");
+  c->SaveAs("filterOutput/accEPSumLink_PA.png");
   c->Close();
   c = new TCanvas();
   
@@ -513,7 +520,41 @@ void filter()
   accEPSum_azimuth->GetXaxis()->SetTitle("Azimmuth (Rads)");
   accEPSum_azimuth->GetYaxis()->SetTitle("Count");
 
-  c->SaveAs("filterOutput/compEPSumLink_azimuth.png");
+  c->SaveAs("filterOutput/accEPSumLink_azimuth.png");
+  c->Close();
+  c = new TCanvas();
+
+  ////////////////////////////
+  //Best match accuracy data//
+  ////////////////////////////
+
+  //draws a hist that hold the differences in pt in between the truth particle and the best match link regardless of reco type
+  accBestMatch_pt->Draw();
+  accBestMatch_pt->SetTitle("Difference in pt between truth and best match link");
+  accBestMatch_pt->GetXaxis()->SetTitle("Transverse momentum (GeV)");
+  accBestMatch_pt->GetYaxis()->SetTitle("Count");
+
+  c->SaveAs("filterOutput/accBestMatchLink_pt.png");
+  c->Close();
+  c = new TCanvas();
+
+  //draws a hist that hold the differences in polar angle in between the truth particle and the best match link regardless of reco type
+  accBestMatch_PA->Draw();
+  accBestMatch_PA->SetTitle("Difference in polar angle between truth and best match link");
+  accBestMatch_PA->GetXaxis()->SetTitle("Polar angle (Rads)");
+  accBestMatch_PA->GetYaxis()->SetTitle("Count");
+
+  c->SaveAs("filterOutput/accBestMatchLink_PA.png");
+  c->Close();
+  c = new TCanvas();
+
+  //draws a hist that hold the differences in azimuth in between the truth particle and the best match link regardless of reco type
+  accBestMatch_azimuth->Draw();
+  accBestMatch_azimuth->SetTitle("Difference in azimuth between truth and best match link");
+  accBestMatch_azimuth->GetXaxis()->SetTitle("Azimmuth (Rads)");
+  accBestMatch_azimuth->GetYaxis()->SetTitle("Count");
+
+  c->SaveAs("filterOutput/accBestMatchLink_azimuth.png");
   c->Close();
   c = new TCanvas();
 
