@@ -258,6 +258,7 @@ void filter()
     accEPSum_PA->Fill(mPATemp - atan2(sqrt((rcmoxSumTemp*rcmoxSumTemp) + (rcmoySumTemp*rcmoySumTemp)), rcmozSumTemp));
     accEPSum_azimuth->Fill(mATemp - atan2(rcmoxSumTemp, rcmoySumTemp));
 
+    //finds the difference between the truth and best match reconstructed particles
     accBestMatch_pt->Fill(mPtTemp - BMptTemp);
     accBestMatch_PA->Fill(mPATemp - BMPATemp);
     accBestMatch_azimuth->Fill(mATemp - BMATemp);
