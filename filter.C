@@ -12,27 +12,25 @@ void filter()
   auto openFile = TFile::Open("ntuple.root");
 
   //defines the histograms
-  c->SetTitle("Real reconstructed particles");
   TH1F *realPassed_pt = new TH1F("rP_pt", "Linked electrons", 20, 0, 2000);
   TH1F *realAllPassed_pt = new TH1F("AP_pt", "Linked particles", 20, 0, 2000);
   TH1F *realAll_pt = new TH1F("rA_pt", "All electrons", 20, 0, 2000);
-  TH1F *realEPSum_pt = new TH1F("EPS_pt", "Summed electrons and protons", 20, 0, 2000);
   TH1F *realPassed_PA = new TH1F("rP_PA", "Linked electrons", 20, 0, 3.2);
   TH1F *realAllPassed_PA = new TH1F("AP_PA", "Linked particles", 20, 0, 3.2);
   TH1F *realAll_PA = new TH1F("rA_PA", "All electrons", 20, 0, 3.2);
-  TH1F *realEPSum_PA = new TH1F("EPS_PA", "Summed electrons and protons", 20, 0, 3.2);
   TH1F *realPassed_azimuth = new TH1F("rP_a", "Linked electrons", 20, -3.2, 3.2);
   TH1F *realAllPassed_azimuth = new TH1F("AP_a", "Linked particles", 20, -3.2, 3.2);
   TH1F *realAll_azimuth = new TH1F("rA_a", "All electrons", 20, -3.2, 3.2);
-  TH1F *realEPSum_azimuth = new TH1F("EPS_a", "Summed electrons and protons", 20, -3.2, 3.2);
-
   TH1D *realElWeights_Hist = new TH1D("realElWeights", "Reco link electron weights", 26, 0, 1.3);
   TH1D *realAllWeights_Hist = new TH1D("realAllWeights", "Reco link all weights", 26, 0, 1.3);
   TH1F *diffPt_Hist = new TH1F("diffPt", "MyLCTuple", 40, -500, 1500);
   TH1F *deltaR_Hist = new TH1F("deltaR", "MyLCTuple", 25, 0, 0.0025);
+  TH1F *accEPSum_pt = new TH1F("EPS_pt", "Summed electrons and protons", 20, 0, 2000);
+  TH1F *accEPSum_PA = new TH1F("EPS_PA", "Summed electrons and protons", 20, 0, 3.2);
+  TH1F *accEPSum_azimuth = new TH1F("EPS_a", "Summed electrons and protons", 20, -3.2, 3.2);
 
   TH1F *electronReco_pt = new TH1F("elRec_pt", "Electron pt", 20, 0, 2000);
- TH1F *photonReco_pt = new TH1F("phRec_pt", "Photon pt", 20, 0, 2000);
+  TH1F *photonReco_pt = new TH1F("phRec_pt", "Photon pt", 20, 0, 2000);
   TH1F *neutronReco_pt = new TH1F("nuRec_pt", "Neutron pt", 20, 0, 2000);
   TH1F *electronReco_PA = new TH1F("elRec_PA", "Electron PA", 20, 0, 3.2);
   TH1F *photonReco_PA = new TH1F("phRec_PA", "Photon PA", 20, 0, 3.2);
@@ -216,9 +214,9 @@ void filter()
     r2wMax = 0;
     r2wMax_Index = -1;
 
-    realEPSum_pt->Fill(mPtTemp - sqrt((rcmoxSumTemp*rcmoxSumTemp) + (rcmoySumTemp*rcmoySumTemp)));
-    realEPSum_PA->Fill(mPATemp - atan2(sqrt((rcmoxSumTemp*rcmoxSumTemp) + (rcmoySumTemp*rcmoySumTemp)), rcmozSumTemp));
-    realEPSum_azimuth->Fill(mATemp - atan2(rcmoxSumTemp, rcmoySumTemp));
+    accEPSum_pt->Fill(mPtTemp - sqrt((rcmoxSumTemp*rcmoxSumTemp) + (rcmoySumTemp*rcmoySumTemp)));
+    accEPSum_PA->Fill(mPATemp - atan2(sqrt((rcmoxSumTemp*rcmoxSumTemp) + (rcmoySumTemp*rcmoySumTemp)), rcmozSumTemp));
+    accEPSum_azimuth->Fill(mATemp - atan2(rcmoxSumTemp, rcmoySumTemp));
   }
 
   gStyle->SetPalette(kRust);
@@ -453,30 +451,30 @@ void filter()
   //=============================================//
 
   //draws a hist that hold the differences in electron and photon sum pt
-  realEPSum_pt->Draw();
-  realEPSum_pt->SetTitle("Difference in pt between all and sum of electrons and photons");
-  realEPSum_pt->GetXaxis()->SetTitle("Transverse momentum (GeV)");
-  realEPSum_pt->GetYaxis()->SetTitle("Count");
+  accEPSum_pt->Draw();
+  accEPSum_pt->SetTitle("Difference in pt between all and sum of electrons and photons");
+  accEPSum_pt->GetXaxis()->SetTitle("Transverse momentum (GeV)");
+  accEPSum_pt->GetYaxis()->SetTitle("Count");
 
   c->SaveAs("filterOutput/compEPSumLink_pt.png");
   c->Close();
   c = new TCanvas();
   
   //draws a hist that hold the differences in electron and photon sum polar angle
-  realEPSum_PA->Draw();
-  realEPSum_PA->SetTitle("Difference in polar angle between all and sum of electrons and photons");
-  realEPSum_PA->GetXaxis()->SetTitle("Polar angle (Rads)");
-  realEPSum_PA->GetYaxis()->SetTitle("Count");
+  accEPSum_PA->Draw();
+  accEPSum_PA->SetTitle("Difference in polar angle between all and sum of electrons and photons");
+  accEPSum_PA->GetXaxis()->SetTitle("Polar angle (Rads)");
+  accEPSum_PA->GetYaxis()->SetTitle("Count");
 
   c->SaveAs("filterOutput/compEPSumLink_PA.png");
   c->Close();
   c = new TCanvas();
   
   //draws a hist that hold the differences in electron and photon sum azimuth
-  realEPSum_azimuth->Draw();
-  realEPSum_azimuth->SetTitle("Difference in azimuth between all and sum of electrons and photons");
-  realEPSum_azimuth->GetXaxis()->SetTitle("Azimmuth (Rads)");
-  realEPSum_azimuth->GetYaxis()->SetTitle("Count");
+  accEPSum_azimuth->Draw();
+  accEPSum_azimuth->SetTitle("Difference in azimuth between all and sum of electrons and photons");
+  accEPSum_azimuth->GetXaxis()->SetTitle("Azimmuth (Rads)");
+  accEPSum_azimuth->GetYaxis()->SetTitle("Count");
 
   c->SaveAs("filterOutput/compEPSumLink_azimuth.png");
   c->Close();
