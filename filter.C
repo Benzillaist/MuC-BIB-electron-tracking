@@ -34,12 +34,14 @@ void filter()
   TH1D *realAllWeights_Hist = new TH1D("realAllWeights", "Reco link all weights", 26, 0, 1.3); // link weights of particles linked to truth electrons
 
   //histograms for storing differences between values
-  TH1F *diffPt_Hist = new TH1F("diffPt", "MyLCTuple", 40, -500, 1500); //difference between reconstructed linked particles and the truth particles in transverse momentum
+  TH1F *diffPt_Hist = new TH1F("diffPt", "MyLCTuple", 40, -2000, 2000); //difference between reconstructed linked particles and the truth particles in transverse momentum
+  TH1F *diffPA_Hist = new TH1F("diffPA", "MyLCTuple", 20, -3.2, 3.2); //difference between reconstructed linked particles and the truth particles in transverse momentum
+  TH1F *diffA_Hist = new TH1F("diffA", "MyLCTuple", 20, -3.2, 3.2); //difference between reconstructed linked particles and the truth particles in transverse momentum
   TH1F *deltaR_Hist = new TH1F("deltaR", "MyLCTuple", 25, 0, 0.0025); //delta R (delta polar angle and azimuth combined)
-  TH1F *accEPSum_pt = new TH1F("aEP_pt", "Summed electrons and protons", 20, 0, 2000); //accuracy of transverse momentum reconstruction when the reconstructed particle is made up of all reconstructed electrons and photons
+  TH1F *accEPSum_pt = new TH1F("aEP_pt", "Summed electrons and protons", 40, -2000, 2000); //accuracy of transverse momentum reconstruction when the reconstructed particle is made up of all reconstructed electrons and photons
   TH1F *accEPSum_PA = new TH1F("aEP_PA", "Summed electrons and protons", 20, 0, 3.2); //accuracy of polar angle reconstructed when the reconstruction particle is made up of all reconstructed electrons and photons
   TH1F *accEPSum_azimuth = new TH1F("aEP_a", "Summed electrons and protons", 20, -3.2, 3.2); //accuracy of azimuth reconstruction when the reconstructed particle is made up of all reconstructed electrons and photons
-  TH1F *accBestMatch_pt = new TH1F("aBM_pt", "Transverse momentum accuracy of best match link", 20, 0, 2000); //accuracy of transverse momentum reconstruction when the reconstructed particle is the best match
+  TH1F *accBestMatch_pt = new TH1F("aBM_pt", "Transverse momentum accuracy of best match link", 40, -2000, 2000); //accuracy of transverse momentum reconstruction when the reconstructed particle is the best match
   TH1F *accBestMatch_PA = new TH1F("aMB_PA", "Polar angle accuracy of best match link", 20, 0, 3.2); //accuracy of polar angle reconstructed when the reconstruction particle is the best match
   TH1F *accBestMatch_azimuth = new TH1F("aMB_a", "Azimuth accuracy of best match link", 20, -3.2, 3.2); //accuracy of azimuth reconstruction when the reconstructed particle is made up of the best match
 
@@ -79,6 +81,7 @@ void filter()
   //temporary variables that will reduce the number of get operatons
   int r2fTemp, r2tTemp;
   Float_t mcmoxTemp, mcmoyTemp, mcmozTemp, rcmoxTemp, rcmoyTemp, rcmozTemp, r2wTemp, mPtTemp, mPATemp, mATemp, rPtTemp, rPATemp, rATemp, deltaRTemp, dPATemp, dATemp, rcmoxSumTemp, rcmoySumTemp, rcmozSumTemp, BMptTemp, BMPATemp, BMATemp;
+  TVector3 mcmoTemp, rcmoTemp, rcmoSumTemp, BMTemp;
   Float_t r2wMax = 0;
   int r2wMax_Index = -1;
   int count = 0;
@@ -89,6 +92,52 @@ void filter()
   
   //loops over each event
   while(myReader.Next()) {
+
+    //loops over all particles to find the generating particle
+    for(int i = 0; i < mcmox_RA.GetSize(); i++) {
+      if(mcgst_RA.At(i)) {
+
+	mcmoTemp.SetXYZ(mcmox_RA.At(i), mcmoy_RA.At(i), mcmoz_RA.At(i));
+
+	//adds generating particle to histogram
+	realAll_pt->Fill(mcmoTemp.Perp());
+	realAll_PA->Fill(mcmoTemp.Theta());
+	realAll_azimuth->Fill(mcmoTemp.Phi());
+	break; //this might cause issues in the future, double check to make sure that there are not two or more generating particles
+      }
+    }
+
+    //resets data sum variables
+    rcmoSumTemp.SetXYZ(0, 0, 0);
+
+    //loops over all reconstructed particles
+    for(int i = 0; i < rcmox_RA.GetSize(); i++) {
+      rcmoTemp.SetXYZ(rcmox_RA.At(i), rcmoy_RA.At(i), rcmoz_RA.At(i));
+
+      //if that particle is an electron or photon, add it the sum variables (this accounts for particle mis-identification)
+      if(abs(rctyp_RA.At(i)) == 11 || abs(rctyp_RA.At(i)) == 22) {
+	rcmoSumTemp.SetXYZ(rcmoSumTemp.X() + rcmoTemp.X(), rcmoSumTemp.Y() + rcmoTemp.Y(), rcmoSumTemp.Z() + rcmoTemp.Z());
+      }
+
+      //if the particle is a electron, add it to one set of histograms
+      if(abs(rctyp_RA.At(i)) == 11) {
+	electronReco_pt->Fill(rcmoTemp.Perp());
+	electronReco_PA->Fill(rcmoTemp.Theta());
+	electronReco_azimuth->Fill(rcmoTemp.Phi());
+
+	//if the particle is a photon, add it to another set of histograms
+      } else if(abs(rctyp_RA.At(i)) == 22) {
+	photonReco_pt->Fill(rcmoTemp.Perp());
+	photonReco_PA->Fill(rcmoTemp.Theta());
+	photonReco_azimuth->Fill(rcmoTemp.Phi());
+
+	//if the particle is a neutron, add it to a third set of histograms
+      } else if(abs(rctyp_RA.At(i)) == 2112) {
+	neutronReco_pt->Fill(rcmoTemp.Perp());
+	neutronReco_PA->Fill(rcmoTemp.Theta());
+	neutronReco_azimuth->Fill(rcmoTemp.Phi());
+      }
+    }
 
     //searches for the largest weight of the relationship that links a reconstructed particle to a particle that we know all the details of
     
@@ -103,9 +152,11 @@ void filter()
 	  r2wMax = r2wTemp;
 	  r2wMax_Index = i;
 	}
-	//adds the weight to a histogram
-	realElWeights_Hist->Fill(r2wTemp);
       }
+    }
+    if(r2wMax_Index != -1) {
+      //adds the weight to a histogram
+      realElWeights_Hist->Fill(r2wMax);
     }
 
     //if a relationship was found between those particles, it is added to histograms
@@ -116,33 +167,24 @@ void filter()
       r2fTemp = r2f_RA.At(r2wMax_Index);
       r2wTemp = r2w_RA.At(r2wMax_Index);
 
-      //finds the momenta of the reco and truth particles
-      mcmoxTemp = mcmox_RA.At(r2tTemp);
-      mcmoyTemp = mcmoy_RA.At(r2tTemp);
-      mcmozTemp = mcmoz_RA.At(r2tTemp);
-      rcmoxTemp = rcmox_RA.At(r2fTemp);
-      rcmoyTemp = rcmoy_RA.At(r2fTemp);
-      rcmozTemp = rcmoz_RA.At(r2fTemp);
-
-      //calculates the attributes (transverse momentum, polar angle, and azimuth)
-      mPtTemp = sqrt((mcmoxTemp*mcmoxTemp) + (mcmoyTemp*mcmoyTemp));
-      mPATemp = atan2(mPtTemp, mcmozTemp);
-      mATemp = atan2(mcmoxTemp, mcmoyTemp);
-      rPtTemp = sqrt((rcmoxTemp*rcmoxTemp) + (rcmoyTemp*rcmoyTemp));
-      rPATemp = atan2(rPtTemp, rcmozTemp);
-      rATemp = atan2(rcmoxTemp, rcmoyTemp);
-
+      //finds the reco momenta of the particle
+      rcmoTemp.SetXYZ(rcmox_RA.At(r2fTemp), rcmoy_RA.At(r2fTemp), rcmoz_RA.At(r2fTemp));
+      BMTemp.SetXYZ(rcmox_RA.At(r2fTemp), rcmoy_RA.At(r2fTemp), rcmoz_RA.At(r2fTemp));
+      
       //finds the differences between truth and reconstructed attributes
-      dPATemp = mPATemp - rPATemp;
-      dATemp = mATemp - rATemp;
+      dPATemp = mcmoTemp.Theta() - rcmoTemp.Theta();
+      dATemp = mcmoTemp.Phi() - rcmoTemp.Phi();
 
       //fills in histograms with attributes
-      realPassed_pt->Fill(mPtTemp);
-      realPassed_PA->Fill(mPATemp);
-      realPassed_azimuth->Fill(mATemp);
-
+      realPassed_pt->Fill(mcmoTemp.Perp());
+      realPassed_PA->Fill(mcmoTemp.Theta());
+      realPassed_azimuth->Fill(mcmoTemp.Phi());
+      
       //fills in histograms with differences
-      diffPt_Hist->Fill(mPtTemp - rPtTemp);
+      diffPt_Hist->Fill(mcmoTemp.Perp() - rcmoTemp.Perp());
+      diffPA_Hist->Fill(mcmoTemp.Theta() - rcmoTemp.Theta());
+      diffA_Hist->Fill(mcmoTemp.Phi() - rcmoTemp.Phi());
+      
       deltaR_Hist->Fill(sqrt((dPATemp*dPATemp) + (dATemp*dATemp)));
       }
 
@@ -160,10 +202,13 @@ void filter()
 	    r2wMax = r2wTemp;
 	    r2wMax_Index = i;
 	  }
-	  //adds the weight to a histogram
-	  realAllWeights_Hist->Fill(r2wTemp);
 	}
       }
+    }
+
+    if(r2wMax_Index != -1) {
+      //adds the weight to a histogram
+      realAllWeights_Hist->Fill(r2wMax);
     }
 
     //repeats the previous steps that adds data to histograms but instead adds it to the histograms that holds links between photons and electrons as well
@@ -172,96 +217,27 @@ void filter()
       r2fTemp = r2f_RA.At(r2wMax_Index);
       r2wTemp = r2w_RA.At(r2wMax_Index);
 
-      mcmoxTemp = mcmox_RA.At(r2tTemp);
-      mcmoyTemp = mcmoy_RA.At(r2tTemp);
-      mcmozTemp = mcmoz_RA.At(r2tTemp);
-      rcmoxTemp = rcmox_RA.At(r2fTemp);
-      rcmoyTemp = rcmoy_RA.At(r2fTemp);
-      rcmozTemp = rcmoz_RA.At(r2fTemp);
-
-      BMptTemp = sqrt((mcmoxTemp*mcmoxTemp) + (mcmoyTemp*mcmoyTemp));
-      BMPATemp = atan2(mPtTemp, mcmozTemp);
-      BMATemp = atan2(mcmoxTemp, mcmoyTemp);
-
-      realAllPassed_pt->Fill(BMptTemp);
-      realAllPassed_PA->Fill(BMPATemp);
-      realAllPassed_azimuth->Fill(BMATemp);
+      rcmoTemp.SetXYZ(rcmox_RA.At(r2fTemp), rcmoy_RA.At(r2fTemp), rcmoz_RA.At(r2fTemp));
+      BMTemp.SetXYZ(mcmox_RA.At(r2tTemp), mcmoy_RA.At(r2tTemp), mcmoz_RA.At(r2tTemp));
+      
+      realAllPassed_pt->Fill(BMTemp.Perp());
+      realAllPassed_PA->Fill(BMTemp.Theta());
+      realAllPassed_azimuth->Fill(BMTemp.Phi());
     }
 
-    //loops over all particles to find the generating particle
-    for(int i = 0; i < mcmox_RA.GetSize(); i++) {
-      if(mcgst_RA.At(i)) {
-	mcmoxTemp = mcmox_RA.At(i);
-	mcmoyTemp = mcmoy_RA.At(i);
-	mcmozTemp = mcmoz_RA.At(i);
-
-	mPtTemp = sqrt((mcmoxTemp*mcmoxTemp) + (mcmoyTemp*mcmoyTemp));
-	mPATemp = atan2(mPtTemp, mcmozTemp);
-	mATemp = atan2(mcmoxTemp, mcmoyTemp);
-
-	//adds generating particle to histogram
-	realAll_pt->Fill(mPtTemp);
-	realAll_PA->Fill(mPATemp);
-	realAll_azimuth->Fill(mATemp);
-	break; //this might cause issues in the future, double check to make sure that there are not two or more generating particles
-      }
-    }
-
-    //resets data sum variables
-    rcmoxSumTemp = 0;
-    rcmoySumTemp = 0;
-    rcmozSumTemp = 0;
-
-    //loops over all reconstructed particles
-    for(int i = 0; i < rcmox_RA.GetSize(); i++) {
-      rcmoxTemp = rcmox_RA.At(i);
-      rcmoyTemp = rcmoy_RA.At(i);
-      rcmozTemp = rcmoz_RA.At(i);
-
-      //if that particle is an electron or photon, add it the sum variables (this accounts for particle mis-identification)
-      if(abs(rctyp_RA.At(i)) == 11 || abs(rctyp_RA.At(i)) == 22) {
-	rcmoxSumTemp += rcmoxTemp;
-	rcmoySumTemp += rcmoyTemp;
-	rcmozSumTemp += rcmozTemp;
-      }
-
-      //calculates the 
-      rPtTemp = sqrt((rcmoxTemp*rcmoxTemp) + (rcmoyTemp*rcmoyTemp));
-      rPATemp = atan2(rPtTemp, rcmozTemp);
-      rATemp = atan2(rcmoxTemp, rcmoyTemp);
-
-      //if the particle is a electron, add it to one set of histograms
-      if(abs(rctyp_RA.At(i)) == 11) {
-	electronReco_pt->Fill(rPtTemp);
-	electronReco_PA->Fill(rPATemp);
-	electronReco_azimuth->Fill(rATemp);
-
-	//if the particle is a photon, add it to another set of histograms
-      } else if(abs(rctyp_RA.At(i)) == 22) {
-	photonReco_pt->Fill(rPtTemp);
-	photonReco_PA->Fill(rPATemp);
-	photonReco_azimuth->Fill(rATemp);
-
-	//if the particle is a neutron, add it to a third set of histograms
-      } else if(abs(rctyp_RA.At(i)) == 2112) {
-	neutronReco_pt->Fill(rPtTemp);
-	neutronReco_PA->Fill(rPATemp);
-	neutronReco_azimuth->Fill(rATemp);
-      }
-    }
     count++;
     r2wMax = 0;
     r2wMax_Index = -1;
 
     //finds the difference between the truth and reconstructed particles (sum of photons and electrons)
-    accEPSum_pt->Fill(mPtTemp - sqrt((rcmoxSumTemp*rcmoxSumTemp) + (rcmoySumTemp*rcmoySumTemp)));
-    accEPSum_PA->Fill(mPATemp - atan2(sqrt((rcmoxSumTemp*rcmoxSumTemp) + (rcmoySumTemp*rcmoySumTemp)), rcmozSumTemp));
-    accEPSum_azimuth->Fill(mATemp - atan2(rcmoxSumTemp, rcmoySumTemp));
+    accEPSum_pt->Fill(mcmoTemp.Perp() - rcmoSumTemp.Perp());
+    accEPSum_PA->Fill(mcmoTemp.Theta() - rcmoSumTemp.Theta());
+    accEPSum_azimuth->Fill(mcmoTemp.Phi() - rcmoSumTemp.Phi());
 
     //finds the difference between the truth and best match reconstructed particles
-    accBestMatch_pt->Fill(mPtTemp - BMptTemp);
-    accBestMatch_PA->Fill(mPATemp - BMPATemp);
-    accBestMatch_azimuth->Fill(mATemp - BMATemp);
+    accBestMatch_pt->Fill(mcmoTemp.Perp() - rcmoTemp.Perp());
+    accBestMatch_PA->Fill(mcmoTemp.Theta() - rcmoTemp.Theta());
+    accBestMatch_azimuth->Fill(mcmoTemp.Phi() - rcmoTemp.Phi());
   }
 
   gStyle->SetPalette(kRust);
@@ -481,6 +457,10 @@ void filter()
   c->Close();
   c = new TCanvas();
 
+  //============================//
+  //Accuracy of electron linking//
+  //============================//
+
   //draws a hist that hold the differences in electron pt
   diffPt_Hist->Draw();
   diffPt_Hist->SetTitle("Difference in pt between all and reconstructed particles");
@@ -488,6 +468,26 @@ void filter()
   diffPt_Hist->GetYaxis()->SetTitle("Count");
 
   c->SaveAs("filterOutput/recoPt_diff.png");
+  c->Close();
+  c = new TCanvas();
+
+  //draws a hist that hold the differences in electron polar angle
+  diffPA_Hist->Draw();
+  diffPA_Hist->SetTitle("Difference in polar angle between all and reconstructed particles");
+  diffPA_Hist->GetXaxis()->SetTitle("Polar angle (Rads)");
+  diffPA_Hist->GetYaxis()->SetTitle("Count");
+
+  c->SaveAs("filterOutput/recoPA_diff.png");
+  c->Close();
+  c = new TCanvas();
+
+  //draws a hist that hold the differences in electron azimuth
+  diffA_Hist->Draw();
+  diffA_Hist->SetTitle("Difference in azimuth between all and reconstructed particles");
+  diffA_Hist->GetXaxis()->SetTitle("Azimuth (Rads)");
+  diffA_Hist->GetYaxis()->SetTitle("Count");
+
+  c->SaveAs("filterOutput/recoAzimuth_diff.png");
   c->Close();
   c = new TCanvas();
 
