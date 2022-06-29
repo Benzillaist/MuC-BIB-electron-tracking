@@ -18,15 +18,18 @@ void filter()
   //histograms for attributes of electrons
   //transverse momentum
   TH1F *realPassed_pt = new TH1F("rP_pt", "Linked electrons", 20, 0, 2000); //transverse momentum of electrons that are linked to reconstructed electrons
-  TH1F *realAllPassed_pt = new TH1F("AP_pt", "Linked particles", 20, 0, 2000); //transverse momentum All truth electrons
-  TH1F *realAll_pt = new TH1F("rA_pt", "All electrons", 20, 0, 2000); //Links the most likely particles together, regardless of reconstructed type
+  TH1F *realAllPassed_pt = new TH1F("AP_pt", "Best match", 20, 0, 2000); //best match transverse momentum from linked electrons and photons
+  TH1F *realEPSum_pt = new TH1F("EPS_pt", "Summed particles", 20, 0, 2000); //summed transverse momentum from linked electrons and photons
+  TH1F *realAll_pt = new TH1F("rA_pt", "All electrons", 20, 0, 2000); //transverse momentum of the truth particles
   //Polar angle
   TH1F *realPassed_PA = new TH1F("rP_PA", "Linked electrons", 20, 0, 3.2); //see above
-  TH1F *realAllPassed_PA = new TH1F("AP_PA", "Linked particles", 20, 0, 3.2);
+  TH1F *realAllPassed_PA = new TH1F("AP_PA", "Best match", 20, 0, 3.2);
+  TH1F *realEPSum_PA = new TH1F("EPS_PA", "Summed particles", 20, 0, 3.2);
   TH1F *realAll_PA = new TH1F("rA_PA", "All electrons", 20, 0, 3.2);
   //Azimuth
   TH1F *realPassed_azimuth = new TH1F("rP_a", "Linked electrons", 20, -3.2, 3.2); //see above
-  TH1F *realAllPassed_azimuth = new TH1F("AP_a", "Linked particles", 20, -3.2, 3.2);
+  TH1F *realAllPassed_azimuth = new TH1F("AP_a", "Best match", 20, -3.2, 3.2);
+  TH1F *realEPSum_azimuth = new TH1F("EPS_a", "Summed particles", 20, -3.2, 3.2);
   TH1F *realAll_azimuth = new TH1F("rA_a", "All electrons", 20, -3.2, 3.2);
 
   //histograms for weights of particles
@@ -34,16 +37,22 @@ void filter()
   TH1D *realAllWeights_Hist = new TH1D("realAllWeights", "Reco link all weights", 26, 0, 1.3); // link weights of particles linked to truth electrons
 
   //histograms for storing differences between values
-  TH1F *diffPt_Hist = new TH1F("diffPt", "MyLCTuple", 40, -2000, 2000); //difference between reconstructed linked particles and the truth particles in transverse momentum
-  TH1F *diffPA_Hist = new TH1F("diffPA", "MyLCTuple", 20, -3.2, 3.2); //difference between reconstructed linked particles and the truth particles in transverse momentum
-  TH1F *diffA_Hist = new TH1F("diffA", "MyLCTuple", 20, -3.2, 3.2); //difference between reconstructed linked particles and the truth particles in transverse momentum
+  TH1F *diffPt_Hist = new TH1F("diffPt", "Simple electron linking", 40, -2000, 2000); //difference between reconstructed linked particles and the truth particles in transverse momentum
+  TH1F *diffPA_Hist = new TH1F("diffPA", "Simple electron linking", 20, -3.2, 3.2); //difference between reconstructed linked particles and the truth particles in transverse momentum
+  TH1F *diffA_Hist = new TH1F("diffA", "Simple electron linking", 20, -3.2, 3.2); //difference between reconstructed linked particles and the truth particles in transverse momentum
   TH1F *deltaR_Hist = new TH1F("deltaR", "MyLCTuple", 25, 0, 0.0025); //delta R (delta polar angle and azimuth combined)
-  TH1F *accEPSum_pt = new TH1F("aEP_pt", "Summed electrons and protons", 40, -2000, 2000); //accuracy of transverse momentum reconstruction when the reconstructed particle is made up of all reconstructed electrons and photons
-  TH1F *accEPSum_PA = new TH1F("aEP_PA", "Summed electrons and protons", 20, 0, 3.2); //accuracy of polar angle reconstructed when the reconstruction particle is made up of all reconstructed electrons and photons
-  TH1F *accEPSum_azimuth = new TH1F("aEP_a", "Summed electrons and protons", 20, -3.2, 3.2); //accuracy of azimuth reconstruction when the reconstructed particle is made up of all reconstructed electrons and photons
-  TH1F *accBestMatch_pt = new TH1F("aBM_pt", "Transverse momentum accuracy of best match link", 40, -2000, 2000); //accuracy of transverse momentum reconstruction when the reconstructed particle is the best match
-  TH1F *accBestMatch_PA = new TH1F("aMB_PA", "Polar angle accuracy of best match link", 20, 0, 3.2); //accuracy of polar angle reconstructed when the reconstruction particle is the best match
-  TH1F *accBestMatch_azimuth = new TH1F("aMB_a", "Azimuth accuracy of best match link", 20, -3.2, 3.2); //accuracy of azimuth reconstruction when the reconstructed particle is made up of the best match
+  TH1F *resEPSum_pt = new TH1F("rEP_pt", "Summed electrons and protons", 40, -2000, 2000); //resolution of transverse momentum reconstruction when the reconstructed particle is made up of all reconstructed electrons and photons
+  TH1F *resEPSum_PA = new TH1F("rEP_PA", "Summed electrons and protons", 20, -3.2, 3.2); //resolution of polar angle reconstructed when the reconstruction particle is made up of all reconstructed electrons and photons
+  TH1F *resEPSum_azimuth = new TH1F("rEP_a", "Summed electrons and protons", 20, -3.2, 3.2); //resolution of azimuth reconstruction when the reconstructed particle is made up of all reconstructed electrons and photons
+  TH1F *resBestMatch_pt = new TH1F("rBM_pt", "Best match link", 40, -2000, 2000); //resolution of transverse momentum reconstruction when the reconstructed particle is the best match
+  TH1F *resBestMatch_PA = new TH1F("rMB_PA", "Best match link", 20, -3.2, 3.2); //resolution of polar angle reconstructed when the reconstruction particle is the best match
+  TH1F *resBestMatch_azimuth = new TH1F("rMB_a", "Best match link", 20, -3.2, 3.2); //resolution of azimuth reconstruction when the reconstructed particle is made up of the best match
+  TH1F *resPhotonReco_pt = new TH1F("rPR_pt", "Best match photon link", 40, -2000, 2000); //resolution of transverse momentum reconstruction when the reconstructed particle is the best photon match
+  TH1F *resPhotonReco_PA = new TH1F("rPR_PA", "Best match photon link", 20, -3.2, 3.2); //resolution of transverse momentum reconstruction when the reconstructed particle is the best photon match
+  TH1F *resPhotonReco_azimuth = new TH1F("rPR_A", "Best match photon link", 20, -3.2, 3.2); //resolution of transverse momentum reconstruction when the reconstructed particle is the best photon match
+  TH1F *relResEPSum_pt = new TH1F("rrEP_pt", "Summed electrons and protons", 40, -2, 2); //relative resolution of transverse momentum reconstruction when the reconstructed particle is made up of all reconstructed electrons and photons
+  TH1F *relResEPSum_PA = new TH1F("rrEP_PA", "Summed electrons and protons", 40, -0.05, 0.05); //relative resolution of polar angle reconstruction when the reconstructed particle is made up of all reconstructed electrons and photons
+  TH1F *relResEPSum_azimuth = new TH1F("rrEP_A", "Summed electrons and protons", 40, -0.2, 0.2); //relative resolution of azimuth reconstruction when the reconstructed particle is made up of all reconstructed electrons and photons
 
   //histograms for storing attributes unique to certain reconstructed types of particles
   //transverse momentum
@@ -80,8 +89,10 @@ void filter()
 
   //temporary variables that will reduce the number of get operatons
   int r2fTemp, r2tTemp;
-  Float_t mcmoxTemp, mcmoyTemp, mcmozTemp, rcmoxTemp, rcmoyTemp, rcmozTemp, r2wTemp, mPtTemp, mPATemp, mATemp, rPtTemp, rPATemp, rATemp, deltaRTemp, dPATemp, dATemp, rcmoxSumTemp, rcmoySumTemp, rcmozSumTemp, BMptTemp, BMPATemp, BMATemp;
-  TVector3 mcmoTemp, rcmoTemp, rcmoSumTemp, BMTemp;
+  bool photonMatch = false;
+  bool electronMatch = false;
+  Float_t r2wTemp, dPATemp, dATemp;
+  TVector3 mcmoTemp, rcmoTemp, rcmoSumTemp, BMTemp, BMPTemp;
   Float_t r2wMax = 0;
   int r2wMax_Index = -1;
   int count = 0;
@@ -108,6 +119,8 @@ void filter()
     }
 
     //resets data sum variables
+    rcmoTemp.SetXYZ(0, 0, 0);
+    BMTemp.SetXYZ(0, 0, 0);
     rcmoSumTemp.SetXYZ(0, 0, 0);
 
     //loops over all reconstructed particles
@@ -116,7 +129,12 @@ void filter()
 
       //if that particle is an electron or photon, add it the sum variables (this accounts for particle mis-identification)
       if(abs(rctyp_RA.At(i)) == 11 || abs(rctyp_RA.At(i)) == 22) {
-	rcmoSumTemp.SetXYZ(rcmoSumTemp.X() + rcmoTemp.X(), rcmoSumTemp.Y() + rcmoTemp.Y(), rcmoSumTemp.Z() + rcmoTemp.Z());
+	for(int j = 0; j < r2f_RA.GetSize(); j++) {
+	  if(r2f_RA.At(j) == i && mcgst_RA.At(r2t_RA.At(j))) {
+	    rcmoSumTemp.SetXYZ(rcmoSumTemp.X() + rcmoTemp.X(), rcmoSumTemp.Y() + rcmoTemp.Y(), rcmoSumTemp.Z() + rcmoTemp.Z());
+	    break;
+	  }
+	}
       }
 
       //if the particle is a electron, add it to one set of histograms
@@ -149,11 +167,13 @@ void filter()
       //checks to see if those particles are electrons and if the paticle is an originial generating particle
       if(abs(mcpdg_RA.At(r2tTemp)) == 11 && abs(rctyp_RA.At(r2fTemp)) == 11 && mcgst_RA.At(r2tTemp)) {
 	if(r2wTemp > r2wMax) {
+	  electronMatch = true;
 	  r2wMax = r2wTemp;
 	  r2wMax_Index = i;
 	}
       }
     }
+    
     if(r2wMax_Index != -1) {
       //adds the weight to a histogram
       realElWeights_Hist->Fill(r2wMax);
@@ -201,43 +221,63 @@ void filter()
 	  if(r2wTemp > r2wMax) {
 	    r2wMax = r2wTemp;
 	    r2wMax_Index = i;
+	    photonMatch = true;
 	  }
 	}
       }
     }
 
-    if(r2wMax_Index != -1) {
-      //adds the weight to a histogram
-      realAllWeights_Hist->Fill(r2wMax);
-    }
-
     //repeats the previous steps that adds data to histograms but instead adds it to the histograms that holds links between photons and electrons as well
-    if(r2wMax_Index != -1) {
+    if(photonMatch || electronMatch) {
       r2tTemp = r2t_RA.At(r2wMax_Index);
       r2fTemp = r2f_RA.At(r2wMax_Index);
       r2wTemp = r2w_RA.At(r2wMax_Index);
 
-      rcmoTemp.SetXYZ(rcmox_RA.At(r2fTemp), rcmoy_RA.At(r2fTemp), rcmoz_RA.At(r2fTemp));
-      BMTemp.SetXYZ(mcmox_RA.At(r2tTemp), mcmoy_RA.At(r2tTemp), mcmoz_RA.At(r2tTemp));
-      
-      realAllPassed_pt->Fill(BMTemp.Perp());
-      realAllPassed_PA->Fill(BMTemp.Theta());
-      realAllPassed_azimuth->Fill(BMTemp.Phi());
-    }
+      //adds the weight of the link to a histogram
+      realAllWeights_Hist->Fill(r2wMax);
 
+      rcmoTemp.SetXYZ(rcmox_RA.At(r2fTemp), rcmoy_RA.At(r2fTemp), rcmoz_RA.At(r2fTemp));
+
+      realAllPassed_pt->Fill(mcmoTemp.Perp());
+      realAllPassed_PA->Fill(mcmoTemp.Theta());
+      realAllPassed_azimuth->Fill(mcmoTemp.Phi());
+
+      //finds the difference between the truth and best match reconstructed particles
+      resBestMatch_pt->Fill(mcmoTemp.Perp() - rcmoTemp.Perp());
+      resBestMatch_PA->Fill(mcmoTemp.Theta() - rcmoTemp.Theta());
+      resBestMatch_azimuth->Fill(mcmoTemp.Phi() - rcmoTemp.Phi());
+
+      if(photonMatch) {
+	resPhotonReco_pt->Fill(mcmoTemp.Perp() - rcmoTemp.Perp());
+	resPhotonReco_PA->Fill(mcmoTemp.Theta() - rcmoTemp.Theta());
+	resPhotonReco_azimuth->Fill(mcmoTemp.Phi() - rcmoTemp.Phi());
+      }
+    }
+    
     count++;
     r2wMax = 0;
     r2wMax_Index = -1;
+    photonMatch = false;
+    electronMatch = false;
 
     //finds the difference between the truth and reconstructed particles (sum of photons and electrons)
-    accEPSum_pt->Fill(mcmoTemp.Perp() - rcmoSumTemp.Perp());
-    accEPSum_PA->Fill(mcmoTemp.Theta() - rcmoSumTemp.Theta());
-    accEPSum_azimuth->Fill(mcmoTemp.Phi() - rcmoSumTemp.Phi());
+    if(rcmoSumTemp.X() != 0 || rcmoSumTemp.Y() != 0 || rcmoSumTemp.Z() != 0){
 
-    //finds the difference between the truth and best match reconstructed particles
-    accBestMatch_pt->Fill(mcmoTemp.Perp() - rcmoTemp.Perp());
-    accBestMatch_PA->Fill(mcmoTemp.Theta() - rcmoTemp.Theta());
-    accBestMatch_azimuth->Fill(mcmoTemp.Phi() - rcmoTemp.Phi());
+      //fills in the electron and proton sum histograms
+      realEPSum_pt->Fill(rcmoSumTemp.Perp());
+      realEPSum_PA->Fill(rcmoSumTemp.Theta());
+      realEPSum_azimuth->Fill(rcmoSumTemp.Phi());
+      
+      //fills in the electron and proton sum resolution histograms
+      resEPSum_pt->Fill(mcmoTemp.Perp() - rcmoSumTemp.Perp());
+      resEPSum_PA->Fill(mcmoTemp.Theta() - rcmoSumTemp.Theta());
+      resEPSum_azimuth->Fill(mcmoTemp.Phi() - rcmoSumTemp.Phi());
+
+      //fills in the electron and proton sum relative resolution histograms
+      relResEPSum_pt->Fill((mcmoTemp.Perp() - rcmoSumTemp.Perp()) / mcmoTemp.Perp());
+      relResEPSum_PA->Fill((mcmoTemp.Theta() - rcmoSumTemp.Theta()) / mcmoTemp.Theta());
+      relResEPSum_azimuth->Fill((mcmoTemp.Phi() - rcmoSumTemp.Phi()) / mcmoTemp.Phi());
+    }
   }
 
   gStyle->SetPalette(kRust);
@@ -432,6 +472,69 @@ void filter()
   c->Close();
   c = new TCanvas();
 
+  //=======================================//
+  //stacked reconstruction resolution hists//
+  //=======================================//
+
+  //draws the resolution of the transverse momentum of different linking methods
+  hs = new THStack("hs", "Resolution of different linking methods (no BIB);Transverse momentum (GeV);Count");
+
+  diffPt_Hist->SetLineColor(kBlue);
+  resEPSum_pt->SetLineColor(kRed);
+  resBestMatch_pt->SetLineColor(kBlack);
+
+  hs->Add(diffPt_Hist);
+  hs->Add(resEPSum_pt);
+  hs->Add(resBestMatch_pt);
+
+  hs->Draw("nostack");
+
+  gPad->SetGrid(1, 0);
+  gPad->BuildLegend(0.1, 0.7, 0.4, 0.9, "");
+
+  c->SaveAs("filterOutput/compResLink_pt.png");
+  c->Close();
+  c = new TCanvas();
+
+  //draws the resolution of the polar angle of different linking methods
+  hs = new THStack("hs", "Resolution of different linking methods (no BIB);Polar angle (GeV);Count");
+
+  diffPA_Hist->SetLineColor(kBlue);
+  resEPSum_PA->SetLineColor(kRed);
+  resBestMatch_PA->SetLineColor(kBlack);
+
+  hs->Add(diffPA_Hist);
+  hs->Add(resEPSum_PA);
+  hs->Add(resBestMatch_PA);
+
+  hs->Draw("nostack");
+
+  gPad->SetGrid(1, 0);
+  gPad->BuildLegend(0.1, 0.7, 0.4, 0.9, "");
+
+  c->SaveAs("filterOutput/compResLink_PA.png");
+  c->Close();
+  c = new TCanvas();
+
+  //draws the resolution of the azimuth of different linking methods
+  hs = new THStack("hs", "Resolution of different linking methods (no BIB);Azimuth (GeV);Count");
+
+  diffA_Hist->SetLineColor(kBlue);
+  resEPSum_azimuth->SetLineColor(kRed);
+  resBestMatch_azimuth->SetLineColor(kBlack);
+
+  hs->Add(diffA_Hist);
+  hs->Add(resEPSum_azimuth);
+  hs->Add(resBestMatch_azimuth);
+
+  hs->Draw("nostack");
+
+  gPad->SetGrid(1, 0);
+  gPad->BuildLegend(0.1, 0.7, 0.4, 0.9, "");
+
+  c->SaveAs("filterOutput/compResLink_azimuth.png");
+  c->Close();
+  c = new TCanvas();
   
   ///////////////
   //SOLO GRAPHS//
@@ -458,7 +561,7 @@ void filter()
   c = new TCanvas();
 
   //============================//
-  //Accuracy of electron linking//
+  //Resolution of electron linking//
   //============================//
 
   //draws a hist that hold the differences in electron pt
@@ -495,71 +598,137 @@ void filter()
   //summed data from linked electrons and photons//
   //=============================================//
 
-  //draws a hist that hold the differences in electron and photon sum pt
-  accEPSum_pt->Draw();
-  accEPSum_pt->SetTitle("Difference in pt between all and sum of electrons and photons");
-  accEPSum_pt->GetXaxis()->SetTitle("Transverse momentum (GeV)");
-  accEPSum_pt->GetYaxis()->SetTitle("Count");
+  //draws a hist that hold the electron and photon sum pt resolution
+  resEPSum_pt->Draw();
+  resEPSum_pt->SetTitle("All truth particle and sum of electrons and photons pt resolution");
+  resEPSum_pt->GetXaxis()->SetTitle("Truth - reconstructed p_{T} (GeV)");
+  resEPSum_pt->GetYaxis()->SetTitle("Count");
 
-  c->SaveAs("filterOutput/accEPSumLink_pt.png");
+  c->SaveAs("filterOutput/resEPSumLink_pt.png");
   c->Close();
   c = new TCanvas();
   
-  //draws a hist that hold the differences in electron and photon sum polar angle
-  accEPSum_PA->Draw();
-  accEPSum_PA->SetTitle("Difference in polar angle between all and sum of electrons and photons");
-  accEPSum_PA->GetXaxis()->SetTitle("Polar angle (Rads)");
-  accEPSum_PA->GetYaxis()->SetTitle("Count");
+  //draws a hist that hold the electron and photon sum polar angle resolution
+  resEPSum_PA->Draw();
+  resEPSum_PA->SetTitle("All truth particle and sum of electrons and photons polar angle resolution");
+  resEPSum_PA->GetXaxis()->SetTitle("Truth - reconstructed polar angle (Rads)");
+  resEPSum_PA->GetYaxis()->SetTitle("Count");
 
-  c->SaveAs("filterOutput/accEPSumLink_PA.png");
+  c->SaveAs("filterOutput/resEPSumLink_PA.png");
   c->Close();
   c = new TCanvas();
   
-  //draws a hist that hold the differences in electron and photon sum azimuth
-  accEPSum_azimuth->Draw();
-  accEPSum_azimuth->SetTitle("Difference in azimuth between all and sum of electrons and photons");
-  accEPSum_azimuth->GetXaxis()->SetTitle("Azimmuth (Rads)");
-  accEPSum_azimuth->GetYaxis()->SetTitle("Count");
+  //draws a hist that hold the electron and photon sum azimuth resolution
+  resEPSum_azimuth->Draw();
+  resEPSum_azimuth->SetTitle("All truth particle and sum of electrons and photons azimuth resolution");
+  resEPSum_azimuth->GetXaxis()->SetTitle("Truth - reconstructed azimuth (Rads)");
+  resEPSum_azimuth->GetYaxis()->SetTitle("Count");
 
-  c->SaveAs("filterOutput/accEPSumLink_azimuth.png");
+  c->SaveAs("filterOutput/resEPSumLink_azimuth.png");
   c->Close();
   c = new TCanvas();
 
-  ////////////////////////////
-  //Best match accuracy data//
-  ////////////////////////////
+  //==========================//
+  //Best match resolution data//
+  //==========================//
 
-  //draws a hist that hold the differences in pt in between the truth particle and the best match link regardless of reco type
-  accBestMatch_pt->Draw();
-  accBestMatch_pt->SetTitle("Difference in pt between truth and best match link");
-  accBestMatch_pt->GetXaxis()->SetTitle("Transverse momentum (GeV)");
-  accBestMatch_pt->GetYaxis()->SetTitle("Count");
+  //draws a hist that hold the truth particle and the best match link regardless of reco type pt resolution
+  resBestMatch_pt->Draw();
+  resBestMatch_pt->SetTitle("Truth and best match link pt resolution");
+  resBestMatch_pt->GetXaxis()->SetTitle("Truth - reconstructed p_{T} (GeV)");
+  resBestMatch_pt->GetYaxis()->SetTitle("Count");
 
-  c->SaveAs("filterOutput/accBestMatchLink_pt.png");
+  c->SaveAs("filterOutput/resBestMatchLink_pt.png");
   c->Close();
   c = new TCanvas();
 
-  //draws a hist that hold the differences in polar angle in between the truth particle and the best match link regardless of reco type
-  accBestMatch_PA->Draw();
-  accBestMatch_PA->SetTitle("Difference in polar angle between truth and best match link");
-  accBestMatch_PA->GetXaxis()->SetTitle("Polar angle (Rads)");
-  accBestMatch_PA->GetYaxis()->SetTitle("Count");
+  //draws a hist that hold the truth particle and the best match link regardless of reco type polar angle resolution
+  resBestMatch_PA->Draw();
+  resBestMatch_PA->SetTitle("Truth and best match link polar angle resolution");
+  resBestMatch_PA->GetXaxis()->SetTitle("Truth - reconstructed polar angle (Rads)");
+  resBestMatch_PA->GetYaxis()->SetTitle("Count");
 
-  c->SaveAs("filterOutput/accBestMatchLink_PA.png");
+  c->SaveAs("filterOutput/resBestMatchLink_PA.png");
   c->Close();
   c = new TCanvas();
 
-  //draws a hist that hold the differences in azimuth in between the truth particle and the best match link regardless of reco type
-  accBestMatch_azimuth->Draw();
-  accBestMatch_azimuth->SetTitle("Difference in azimuth between truth and best match link");
-  accBestMatch_azimuth->GetXaxis()->SetTitle("Azimmuth (Rads)");
-  accBestMatch_azimuth->GetYaxis()->SetTitle("Count");
+  //draws a hist that hold the truth particle and the best match link regardless of reco type azimuth resolution
+  resBestMatch_azimuth->Draw();
+  resBestMatch_azimuth->SetTitle("Truth and best match link azimuth resolution");
+  resBestMatch_azimuth->GetXaxis()->SetTitle("Truth - reconstructed azimuth (Rads)");
+  resBestMatch_azimuth->GetYaxis()->SetTitle("Count");
 
-  c->SaveAs("filterOutput/accBestMatchLink_azimuth.png");
+  c->SaveAs("filterOutput/resBestMatchLink_azimuth.png");
   c->Close();
   c = new TCanvas();
-
   
+  //=============================================//
+  //Best match resolution data for photon matches//
+  //=============================================//
+
+  //draws a hist that hold the truth particle and the best match link pt resolution for photons
+  resPhotonReco_pt->Draw();
+  resPhotonReco_pt->SetTitle("Truth and best match link pt resolution for photons");
+  resPhotonReco_pt->GetXaxis()->SetTitle("Truth - reconstructed p_{T} (GeV)");
+  resPhotonReco_pt->GetYaxis()->SetTitle("Count");
+
+  c->SaveAs("filterOutput/resBMPhotonLink_pt.png");
+  c->Close();
+  c = new TCanvas();
+
+  //draws a hist that hold the truth particle and the best match link polar angle resolution for photons
+  resPhotonReco_PA->Draw();
+  resPhotonReco_PA->SetTitle("Truth and best match link polar angle resolution for photons");
+  resPhotonReco_PA->GetXaxis()->SetTitle("Truth - reconstructed polar angle (Rads)");
+  resPhotonReco_PA->GetYaxis()->SetTitle("Count");
+
+  c->SaveAs("filterOutput/resBMPhotonLinkLink_PA.png");
+  c->Close();
+  c = new TCanvas();
+
+  //draws a hist that hold the truth particle and the best match link regardless azimuth resolution for photons
+  resPhotonReco_azimuth->Draw();
+  resPhotonReco_azimuth->SetTitle("Truth and best match link azimuth resolution for photons");
+  resPhotonReco_azimuth->GetXaxis()->SetTitle("Truth - reconstructed azimuth (Rads)");
+  resPhotonReco_azimuth->GetYaxis()->SetTitle("Count");
+
+  c->SaveAs("filterOutput/resBMPhotonLink_azimuth.png");
+  c->Close();
+  c = new TCanvas();
+  
+  //================================================//
+  //relative resolution summed protons and electrons//
+  //================================================//
+
+  //draws a hist that hold the truth particle and the best match link regardless of reco type pt relative resolution
+  relResEPSum_pt->Draw();
+  relResEPSum_pt->SetTitle("Truth and best match link pt relative resolution");
+  relResEPSum_pt->GetXaxis()->SetTitle("(Truth - reconstructed) / truth p_{T} (GeV)");
+  relResEPSum_pt->GetYaxis()->SetTitle("Count");
+
+  c->SaveAs("filterOutput/relResEPSumLink_pt.png");
+  c->Close();
+  c = new TCanvas();
+
+  //draws a hist that hold the truth particle and the best match link regardless of reco type polar angle relative resolution
+  relResEPSum_PA->Draw();
+  relResEPSum_PA->SetTitle("Truth and best match link polar angle relative resolution");
+  relResEPSum_PA->GetXaxis()->SetTitle("(Truth - reconstructed) / truth polar angle (Rads)");
+  relResEPSum_PA->GetYaxis()->SetTitle("Count");
+
+  c->SaveAs("filterOutput/relResEPSumLink_PA.png");
+  c->Close();
+  c = new TCanvas();
+
+  //draws a hist that hold the truth particle and the best match link regardless of reco type azimuth relative resolution
+  relResEPSum_azimuth->Draw();
+  relResEPSum_azimuth->SetTitle("Truth and best match link azimuth relative resolution");
+  relResEPSum_azimuth->GetXaxis()->SetTitle("(Truth - reconstructed) / truth azimuth (Rads)");
+  relResEPSum_azimuth->GetYaxis()->SetTitle("Count");
+
+  c->SaveAs("filterOutput/relResEPSumLin_azimuth.png");
+  c->Close();
+  c = new TCanvas();
 
   //draws a histogram for delta r (distance between polar angle and lambda on a plot between the real and reco data)
   c->SetLogy();
@@ -635,8 +804,8 @@ void filter()
   c->Clear();
   c->Close();
 
-  //draws an efficiency graph for transverse momentum
-  TEfficiency* ptAll_Eff = new TEfficiency("pt_Eff", "Efficiency of transverse momentum reconstruction for all particles;Transverse momentum (GeV);Efficiency", 20, 0, 2000);
+  //draws an efficiency graph for transverse momentum for best match particles
+  TEfficiency* ptAll_Eff = new TEfficiency("ptBM_Eff", "Efficiency of transverse momentum reconstruction for all particles;Transverse momentum (GeV);Efficiency", 20, 0, 2000);
   eff_File = new TFile("effFile.root", "recreate");
   
   //checks to make sure if the two histograms are compatable to make an efficiency histogram
@@ -654,8 +823,8 @@ void filter()
   c->Close();
   c = new TCanvas();
 
-  //draws an efficiency graph for the polar angle
-  TEfficiency* PAAll_Eff = new TEfficiency("PA_Eff", "Efficiency of polar angle reconstruction for all particles;Polar angle (Rads);Efficiency", 20, 0, 1.6);
+  //draws an efficiency graph for the polar angle for best match particles
+  TEfficiency* PAAll_Eff = new TEfficiency("PABM_Eff", "Efficiency of polar angle reconstruction for all particles;Polar angle (Rads);Efficiency", 20, 0, 1.6);
   eff_File = new TFile("effFile.root", "recreate");
 
   //checks to make sure if the two histograms are compatable to make an efficiency histogram
@@ -673,8 +842,8 @@ void filter()
   c->Close();
   c = new TCanvas();
 
-  //draws an efficiency graph for the azimuth for 
-  TEfficiency* azimuthAll_Eff = new TEfficiency("azimuth_Eff", "Efficiency of azimuth reconstruction for all particles;Azimuth (Rads);Eff\
+  //draws an efficiency graph for the azimuth for best match particles
+  TEfficiency* azimuthAll_Eff = new TEfficiency("azimuthBM_Eff", "Efficiency of azimuth reconstruction for all particles;Azimuth (Rads);Eff\
 iciency", 20, -1.6, 1.6);
   eff_File = new TFile("effFile.root", "recreate");
 
@@ -691,4 +860,79 @@ iciency", 20, -1.6, 1.6);
 
   c->SaveAs("filterOutput/EffAll_azimuth.png");
   c->Close();
+
+  //setting new line colors so the plots are differentable when put on the same graph
+  pt_Eff->SetLineColor(4);
+  PA_Eff->SetLineColor(4);
+  azimuth_Eff->SetLineColor(4);
+  
+  ptAll_Eff->SetLineColor(2);
+  PAAll_Eff->SetLineColor(2);
+  azimuthAll_Eff->SetLineColor(2);
+
+  pt_Eff->SetTitle("Just electrons");
+  PA_Eff->SetTitle("Just electrons");
+  azimuth_Eff->SetTitle("Just electrons");
+
+  ptAll_Eff->SetTitle("Best match");
+  PAAll_Eff->SetTitle("Best match");
+  azimuthAll_Eff->SetTitle("Best match");
+
+  //creates a multigraph for the transverse momentum efficiencies
+  TMultiGraph *mg = new TMultiGraph();
+  c = new TCanvas();
+  
+  mg->Add(pt_Eff->CreateGraph());
+  mg->Add(ptAll_Eff->CreateGraph());
+
+  mg->SetTitle("Transverse momentum reconstruction efficiencies");
+  mg->GetXaxis()->SetTitle("Transverse momentum (GeV)");
+  mg->GetYaxis()->SetTitle("Count");
+
+  mg->Draw("aZ");
+
+  gPad->SetGrid(1, 0);
+  gPad->BuildLegend(0.1, 0.1, 0.3, 0.25, "");
+
+  c->SaveAs("filterOutput/multiBMEff_pt.png");
+  c->Close();
+
+  //creates a multigraph for the polar angle efficiencies
+  mg = new TMultiGraph();
+  c = new TCanvas();
+
+  mg->Add(PA_Eff->CreateGraph());
+  mg->Add(PAAll_Eff->CreateGraph());
+
+  mg->SetTitle("Polar angle reconstruction efficiencies");
+  mg->GetXaxis()->SetTitle("Polar angle (Rads)");
+  mg->GetYaxis()->SetTitle("Count");
+  
+  mg->Draw("aZ");
+
+  gPad->SetGrid(1, 0);
+  gPad->BuildLegend(0.1, 0.1, 0.3, 0.25, "");
+
+  c->SaveAs("filterOutput/multiBMEff_PA.png");
+  c->Close();
+
+  //creates a multigraph for the azimuth efficiencies
+  mg = new TMultiGraph();
+  c = new TCanvas();
+
+  mg->Add(azimuth_Eff->CreateGraph());
+  mg->Add(azimuthAll_Eff->CreateGraph());
+
+  mg->SetTitle("Azimuth reconstruction efficiencies");
+  mg->GetXaxis()->SetTitle("Azimuth (Rads)");
+  mg->GetYaxis()->SetTitle("Count");
+  
+  mg->Draw("aZ");
+
+  gPad->SetGrid(1, 0);
+  gPad->BuildLegend(0.1, 0.1, 0.3, 0.25, "");
+
+  c->SaveAs("filterOutput/multiBMEff_azimuth.png");
+  c->Close();
+
 }
