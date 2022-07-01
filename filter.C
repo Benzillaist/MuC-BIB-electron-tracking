@@ -1,15 +1,24 @@
 void filter()
-{ 
+{
+  /////////////////////////////
+  //GENERAL ANALYSIS SETTINGS//
+  /////////////////////////////
+  
   auto fileName = "ntuple.root";
   auto treeName = "MyLCTuple";
 
-  TFile *myFile = new TFile("ntuple.root");
-  TTree *myTree = (TTree*)myFile->Get("MyLCTuple");
+  TString saveDir = "filterOutput";
+
+  /////////////////////////////
+
+  //TFile *myFile = new TFile("ntuple.root");
+  TFile *myFile = new TFile(fileName);
+  TTree *myTree = (TTree*)myFile->Get(treeName);
 
   TCanvas *c = new TCanvas();
   
   //opens the file to be read
-  auto openFile = TFile::Open("ntuple.root");
+  auto openFile = TFile::Open(fileName);
 
   /////////////////////////
   //Histogram definitions//
@@ -20,6 +29,7 @@ void filter()
   TH1F *realPassed_pt = new TH1F("rP_pt", "Linked electrons", 20, 0, 2000); //transverse momentum of electrons that are linked to reconstructed electrons
   TH1F *realAllPassed_pt = new TH1F("AP_pt", "Best match", 20, 0, 2000); //best match transverse momentum from linked electrons and photons
   TH1F *realEPSum_pt = new TH1F("EPS_pt", "Summed particles", 20, 0, 2000); //summed transverse momentum from linked electrons and photons
+  TH1F *recoTrackLink_pt = new TH1F("recTck_pt", "Reco track", 40, -2000, 2000); //transverse momentum from individual track reconstruction segments
   TH1F *realAll_pt = new TH1F("rA_pt", "All electrons", 20, 0, 2000); //transverse momentum of the truth particles
   //Polar angle
   TH1F *realPassed_PA = new TH1F("rP_PA", "Linked electrons", 20, 0, 3.2); //see above
@@ -50,9 +60,12 @@ void filter()
   TH1F *resPhotonReco_pt = new TH1F("rPR_pt", "Best match photon link", 40, -2000, 2000); //resolution of transverse momentum reconstruction when the reconstructed particle is the best photon match
   TH1F *resPhotonReco_PA = new TH1F("rPR_PA", "Best match photon link", 20, -3.2, 3.2); //resolution of transverse momentum reconstruction when the reconstructed particle is the best photon match
   TH1F *resPhotonReco_azimuth = new TH1F("rPR_A", "Best match photon link", 20, -3.2, 3.2); //resolution of transverse momentum reconstruction when the reconstructed particle is the best photon match
+  TH1F *resTrackLink_pt = new TH1F("rTck_pt", "Reco track", 40, -2000, 2000); //transverse momentum from individual track reconstruction segments
+
+  //histograms for storing relative differences between values
   TH1F *relResEPSum_pt = new TH1F("rrEP_pt", "Summed electrons and protons", 40, -2, 2); //relative resolution of transverse momentum reconstruction when the reconstructed particle is made up of all reconstructed electrons and photons
-  TH1F *relResEPSum_PA = new TH1F("rrEP_PA", "Summed electrons and protons", 40, -0.05, 0.05); //relative resolution of polar angle reconstruction when the reconstructed particle is made up of all reconstructed electrons and photons
-  TH1F *relResEPSum_azimuth = new TH1F("rrEP_A", "Summed electrons and protons", 40, -0.2, 0.2); //relative resolution of azimuth reconstruction when the reconstructed particle is made up of all reconstructed electrons and photons
+  TH1F *relResEPSum_PA = new TH1F("rrEP_PA", "Summed electrons and protons", 20, -0.05, 0.05); //relative resolution of polar angle reconstruction when the reconstructed particle is made up of all reconstructed electrons and photons
+  TH1F *relResEPSum_azimuth = new TH1F("rrEP_A", "Summed electrons and protons", 20, -0.2, 0.2); //relative resolution of azimuth reconstruction when the reconstructed particle is made up of all reconstructed electrons and photons
 
   //histograms for storing attributes unique to certain reconstructed types of particles
   //transverse momentum
@@ -83,6 +96,7 @@ void filter()
   TTreeReaderArray<Float_t> rcmox_RA(myReader, "rcmox"); //reco x momentum
   TTreeReaderArray<Float_t> rcmoy_RA(myReader, "rcmoy"); //reco y momentum
   TTreeReaderArray<Float_t> rcmoz_RA(myReader, "rcmoz"); //reco z momentum
+  TTreeReaderArray<Float_t> tsome_RA(myReader, "tsome"); //reco track curviture
   TTreeReaderArray<int> rctyp_RA(myReader, "rctyp"); //reconstructed type (11 = electron, 22 = photon, 2112 = neutron)
   TTreeReaderArray<int> mcpdg_RA(myReader, "mcpdg"); //truth type (see list above)
   TTreeReaderArray<int> mcgst_RA(myReader, "mcgst"); //is this particle a generating particle or not
@@ -137,7 +151,7 @@ void filter()
 	}
       }
 
-      //if the particle is a electron, add it to one set of histograms
+      //if the particle is a elect ron, add it to one set of histograms
       if(abs(rctyp_RA.At(i)) == 11) {
 	electronReco_pt->Fill(rcmoTemp.Perp());
 	electronReco_PA->Fill(rcmoTemp.Theta());
@@ -251,6 +265,11 @@ void filter()
 	resPhotonReco_pt->Fill(mcmoTemp.Perp() - rcmoTemp.Perp());
 	resPhotonReco_PA->Fill(mcmoTemp.Theta() - rcmoTemp.Theta());
 	resPhotonReco_azimuth->Fill(mcmoTemp.Phi() - rcmoTemp.Phi());
+
+	if(tsome_RA.GetSize() > 0){
+	  recoTrackLink_pt->Fill(((0.3 * 3.57) / tsome_RA.At(0)) / 1000);
+	  resTrackLink_pt->Fill(mcmoTemp.Perp() - abs(((0.3 * 3.57) / tsome_RA.At(0)) / 1000));
+	}
       }
     }
     
@@ -277,7 +296,7 @@ void filter()
       relResEPSum_pt->Fill((mcmoTemp.Perp() - rcmoSumTemp.Perp()) / mcmoTemp.Perp());
       relResEPSum_PA->Fill((mcmoTemp.Theta() - rcmoSumTemp.Theta()) / mcmoTemp.Theta());
       relResEPSum_azimuth->Fill((mcmoTemp.Phi() - rcmoSumTemp.Phi()) / mcmoTemp.Phi());
-    }
+    }    
   }
 
   gStyle->SetPalette(kRust);
@@ -308,7 +327,7 @@ void filter()
   gPad->SetGrid(1, 0);
   gPad->BuildLegend(0.75, 0.75, 0.9, 0.9, "");
   
-  c->SaveAs("filterOutput/allPart_pt.png");
+  c->SaveAs(saveDir + "/allPart_pt.png");
   c->Close();
   c = new TCanvas();
 
@@ -330,7 +349,7 @@ void filter()
   gPad->SetGrid(1, 0);
   gPad->BuildLegend(0.7, 0.1, 0.9, 0.3, "");
   
-  c->SaveAs("filterOutput/allPart_PA.png");
+  c->SaveAs(saveDir + "/allPart_PA.png");
   c->Close();
   c = new TCanvas();
 
@@ -352,7 +371,7 @@ void filter()
   gPad->SetGrid(1, 0);
   gPad->BuildLegend(0.4, 0.1, 0.6, 0.3, "");
 
-  c->SaveAs("filterOutput/allPart_azimuth.png");
+  c->SaveAs(saveDir + "/allPart_azimuth.png");
   c->Close();
   c = new TCanvas();
 
@@ -374,7 +393,7 @@ void filter()
   gPad->SetGrid(1, 0);
   gPad->BuildLegend(0.1, 0.1, 0.45, 0.3, "");
   
-  c->SaveAs("filterOutput/compLink_pt.png");
+  c->SaveAs(saveDir + "/compLink_pt.png");
   c->Close();
   c = new TCanvas();
 
@@ -392,7 +411,7 @@ void filter()
   gPad->SetGrid(1, 0);
   gPad->BuildLegend(0.1, 0.1, 0.3, 0.25, "");
 
-  c->SaveAs("filterOutput/compLink_PA.png");
+  c->SaveAs(saveDir + "/compLink_PA.png");
   c->Close();
   c = new TCanvas();
 
@@ -410,7 +429,7 @@ void filter()
   gPad->SetGrid(1, 0);
   gPad->BuildLegend(0.1, 0.1, 0.3, 0.25, "");
 
-  c->SaveAs("filterOutput/compLink_azimuth.png");
+  c->SaveAs(saveDir + "/compLink_azimuth.png");
   c->Close();
   c = new TCanvas();
   
@@ -432,7 +451,7 @@ void filter()
   gPad->SetGrid(1, 0);
   gPad->BuildLegend(0.1, 0.1, 0.45, 0.3, "");
 
-  c->SaveAs("filterOutput/compAllLink_pt.png");
+  c->SaveAs(saveDir + "/compAllLink_pt.png");
   c->Close();
   c = new TCanvas();
 
@@ -450,7 +469,7 @@ void filter()
   gPad->SetGrid(1, 0);
   gPad->BuildLegend(0.1, 0.1, 0.3, 0.25, "");
 
-  c->SaveAs("filterOutput/compAllLink_PA.png");
+  c->SaveAs(saveDir + "/compAllLink_PA.png");
   c->Close();
   c = new TCanvas();
 
@@ -468,7 +487,7 @@ void filter()
   gPad->SetGrid(1, 0);
   gPad->BuildLegend(0.1, 0.1, 0.3, 0.25, "");
 
-  c->SaveAs("filterOutput/compAllLink_azimuth.png");
+  c->SaveAs(saveDir + "/compAllLink_azimuth.png");
   c->Close();
   c = new TCanvas();
 
@@ -492,7 +511,7 @@ void filter()
   gPad->SetGrid(1, 0);
   gPad->BuildLegend(0.1, 0.7, 0.4, 0.9, "");
 
-  c->SaveAs("filterOutput/compResLink_pt.png");
+  c->SaveAs(saveDir + "/resolution/compResLink_pt.png");
   c->Close();
   c = new TCanvas();
 
@@ -512,7 +531,7 @@ void filter()
   gPad->SetGrid(1, 0);
   gPad->BuildLegend(0.1, 0.7, 0.4, 0.9, "");
 
-  c->SaveAs("filterOutput/compResLink_PA.png");
+  c->SaveAs(saveDir + "/resolution/compResLink_PA.png");
   c->Close();
   c = new TCanvas();
 
@@ -532,7 +551,7 @@ void filter()
   gPad->SetGrid(1, 0);
   gPad->BuildLegend(0.1, 0.7, 0.4, 0.9, "");
 
-  c->SaveAs("filterOutput/compResLink_azimuth.png");
+  c->SaveAs(saveDir + "/resolution/compResLink_azimuth.png");
   c->Close();
   c = new TCanvas();
   
@@ -546,7 +565,7 @@ void filter()
   realElWeights_Hist->GetXaxis()->SetTitle("Weight");
   realElWeights_Hist->GetYaxis()->SetTitle("Count");
   
-  c->SaveAs("filterOutput/recoLinkElWeights.png");
+  c->SaveAs(saveDir + "/weight/recoLinkElWeights.png");
   c->Close();
   c = new TCanvas();
 
@@ -556,7 +575,17 @@ void filter()
   realAllWeights_Hist->GetXaxis()->SetTitle("Weight");
   realAllWeights_Hist->GetYaxis()->SetTitle("Count");
 
-  c->SaveAs("filterOutput/recoLinkAllWeights.png");
+  c->SaveAs(saveDir + "/weight/recoLinkAllWeights.png");
+  c->Close();
+  c = new TCanvas();
+
+  //draws a hist that hold the reco track link data for best match photons
+  recoTrackLink_pt->Draw();
+  recoTrackLink_pt->SetTitle("Reconstructed track link transverse momentum for best match photons");
+  recoTrackLink_pt->GetXaxis()->SetTitle("Truth - reconstructed (Gev)");
+  recoTrackLink_pt->GetYaxis()->SetTitle("Count");
+
+  c->SaveAs(saveDir + "/recoTrackLink_pt.png");
   c->Close();
   c = new TCanvas();
 
@@ -570,7 +599,7 @@ void filter()
   diffPt_Hist->GetXaxis()->SetTitle("Transverse momentum (GeV)");
   diffPt_Hist->GetYaxis()->SetTitle("Count");
 
-  c->SaveAs("filterOutput/recoPt_diff.png");
+  c->SaveAs(saveDir + "/resolution/recoPt_diff.png");
   c->Close();
   c = new TCanvas();
 
@@ -580,7 +609,7 @@ void filter()
   diffPA_Hist->GetXaxis()->SetTitle("Polar angle (Rads)");
   diffPA_Hist->GetYaxis()->SetTitle("Count");
 
-  c->SaveAs("filterOutput/recoPA_diff.png");
+  c->SaveAs(saveDir + "/resolution/recoPA_diff.png");
   c->Close();
   c = new TCanvas();
 
@@ -590,7 +619,7 @@ void filter()
   diffA_Hist->GetXaxis()->SetTitle("Azimuth (Rads)");
   diffA_Hist->GetYaxis()->SetTitle("Count");
 
-  c->SaveAs("filterOutput/recoAzimuth_diff.png");
+  c->SaveAs(saveDir + "/resolution/recoAzimuth_diff.png");
   c->Close();
   c = new TCanvas();
 
@@ -604,7 +633,7 @@ void filter()
   resEPSum_pt->GetXaxis()->SetTitle("Truth - reconstructed p_{T} (GeV)");
   resEPSum_pt->GetYaxis()->SetTitle("Count");
 
-  c->SaveAs("filterOutput/resEPSumLink_pt.png");
+  c->SaveAs(saveDir + "/resolution/resEPSumLink_pt.png");
   c->Close();
   c = new TCanvas();
   
@@ -614,7 +643,7 @@ void filter()
   resEPSum_PA->GetXaxis()->SetTitle("Truth - reconstructed polar angle (Rads)");
   resEPSum_PA->GetYaxis()->SetTitle("Count");
 
-  c->SaveAs("filterOutput/resEPSumLink_PA.png");
+  c->SaveAs(saveDir + "/resolution/resEPSumLink_PA.png");
   c->Close();
   c = new TCanvas();
   
@@ -624,7 +653,7 @@ void filter()
   resEPSum_azimuth->GetXaxis()->SetTitle("Truth - reconstructed azimuth (Rads)");
   resEPSum_azimuth->GetYaxis()->SetTitle("Count");
 
-  c->SaveAs("filterOutput/resEPSumLink_azimuth.png");
+  c->SaveAs(saveDir + "/resolution/resEPSumLink_azimuth.png");
   c->Close();
   c = new TCanvas();
 
@@ -638,7 +667,7 @@ void filter()
   resBestMatch_pt->GetXaxis()->SetTitle("Truth - reconstructed p_{T} (GeV)");
   resBestMatch_pt->GetYaxis()->SetTitle("Count");
 
-  c->SaveAs("filterOutput/resBestMatchLink_pt.png");
+  c->SaveAs(saveDir + "/resolution/resBestMatchLink_pt.png");
   c->Close();
   c = new TCanvas();
 
@@ -648,7 +677,7 @@ void filter()
   resBestMatch_PA->GetXaxis()->SetTitle("Truth - reconstructed polar angle (Rads)");
   resBestMatch_PA->GetYaxis()->SetTitle("Count");
 
-  c->SaveAs("filterOutput/resBestMatchLink_PA.png");
+  c->SaveAs(saveDir + "/resolution/resBestMatchLink_PA.png");
   c->Close();
   c = new TCanvas();
 
@@ -658,7 +687,7 @@ void filter()
   resBestMatch_azimuth->GetXaxis()->SetTitle("Truth - reconstructed azimuth (Rads)");
   resBestMatch_azimuth->GetYaxis()->SetTitle("Count");
 
-  c->SaveAs("filterOutput/resBestMatchLink_azimuth.png");
+  c->SaveAs(saveDir + "/resolution/resBestMatchLink_azimuth.png");
   c->Close();
   c = new TCanvas();
   
@@ -672,7 +701,7 @@ void filter()
   resPhotonReco_pt->GetXaxis()->SetTitle("Truth - reconstructed p_{T} (GeV)");
   resPhotonReco_pt->GetYaxis()->SetTitle("Count");
 
-  c->SaveAs("filterOutput/resBMPhotonLink_pt.png");
+  c->SaveAs(saveDir + "/resolution/resBMPhotonLink_pt.png");
   c->Close();
   c = new TCanvas();
 
@@ -682,17 +711,31 @@ void filter()
   resPhotonReco_PA->GetXaxis()->SetTitle("Truth - reconstructed polar angle (Rads)");
   resPhotonReco_PA->GetYaxis()->SetTitle("Count");
 
-  c->SaveAs("filterOutput/resBMPhotonLinkLink_PA.png");
+  c->SaveAs(saveDir + "/resolution/resBMPhotonLinkLink_PA.png");
   c->Close();
   c = new TCanvas();
 
-  //draws a hist that hold the truth particle and the best match link regardless azimuth resolution for photons
+  //draws a hist that hold the truth particle and the best match link azimuth resolution for photons
   resPhotonReco_azimuth->Draw();
   resPhotonReco_azimuth->SetTitle("Truth and best match link azimuth resolution for photons");
   resPhotonReco_azimuth->GetXaxis()->SetTitle("Truth - reconstructed azimuth (Rads)");
   resPhotonReco_azimuth->GetYaxis()->SetTitle("Count");
 
-  c->SaveAs("filterOutput/resBMPhotonLink_azimuth.png");
+  c->SaveAs(saveDir + "/resolution/resBMPhotonLink_azimuth.png");
+  c->Close();
+  c = new TCanvas();
+  
+  //======================================================//
+  //Resolution of track link reconstruction for BM photons//
+  //======================================================//
+
+  //draws a hist that hold the truth particle and the best match photon track link pt  resolution
+  resTrackLink_pt->Draw();
+  resTrackLink_pt->SetTitle("Truth and best match link photon track transverse momentum resolution");
+  resTrackLink_pt->GetXaxis()->SetTitle("Truth - reconstructed track p_{T} (GeV)");
+  resTrackLink_pt->GetYaxis()->SetTitle("Count");
+
+  c->SaveAs(saveDir + "/resolution/resTrackLink_pt.png");
   c->Close();
   c = new TCanvas();
   
@@ -703,32 +746,36 @@ void filter()
   //draws a hist that hold the truth particle and the best match link regardless of reco type pt relative resolution
   relResEPSum_pt->Draw();
   relResEPSum_pt->SetTitle("Truth and best match link pt relative resolution");
-  relResEPSum_pt->GetXaxis()->SetTitle("(Truth - reconstructed) / truth p_{T} (GeV)");
+  relResEPSum_pt->GetXaxis()->SetTitle("(Truth - reconstructed) / truth p_{T}");
   relResEPSum_pt->GetYaxis()->SetTitle("Count");
 
-  c->SaveAs("filterOutput/relResEPSumLink_pt.png");
+  c->SaveAs(saveDir + "/resolution/relResEPSumLink_pt.png");
   c->Close();
   c = new TCanvas();
 
   //draws a hist that hold the truth particle and the best match link regardless of reco type polar angle relative resolution
   relResEPSum_PA->Draw();
   relResEPSum_PA->SetTitle("Truth and best match link polar angle relative resolution");
-  relResEPSum_PA->GetXaxis()->SetTitle("(Truth - reconstructed) / truth polar angle (Rads)");
+  relResEPSum_PA->GetXaxis()->SetTitle("(Truth - reconstructed) / truth polar angle");
   relResEPSum_PA->GetYaxis()->SetTitle("Count");
 
-  c->SaveAs("filterOutput/relResEPSumLink_PA.png");
+  c->SaveAs(saveDir + "/resolution/relResEPSumLink_PA.png");
   c->Close();
   c = new TCanvas();
 
   //draws a hist that hold the truth particle and the best match link regardless of reco type azimuth relative resolution
   relResEPSum_azimuth->Draw();
   relResEPSum_azimuth->SetTitle("Truth and best match link azimuth relative resolution");
-  relResEPSum_azimuth->GetXaxis()->SetTitle("(Truth - reconstructed) / truth azimuth (Rads)");
+  relResEPSum_azimuth->GetXaxis()->SetTitle("(Truth - reconstructed) / truth azimuth");
   relResEPSum_azimuth->GetYaxis()->SetTitle("Count");
 
-  c->SaveAs("filterOutput/relResEPSumLin_azimuth.png");
+  c->SaveAs(saveDir + "/resolution/relResEPSumLin_azimuth.png");
   c->Close();
   c = new TCanvas();
+
+  ////////
+  //MISC//
+  ////////
 
   //draws a histogram for delta r (distance between polar angle and lambda on a plot between the real and reco data)
   c->SetLogy();
@@ -738,7 +785,7 @@ void filter()
   deltaR_Hist->GetXaxis()->SetTitle("delta R (Rads)");
   deltaR_Hist->GetYaxis()->SetTitle("Count");
 
-  c->SaveAs("filterOutput/deltaR.png");
+  c->SaveAs(saveDir + "/deltaR.png");
   c->Close();
   c = new TCanvas();
 
@@ -761,7 +808,7 @@ void filter()
   
   pt_Eff->Draw();
 
-  c->SaveAs("filterOutput/Eff_pt.png");
+  c->SaveAs(saveDir + "/efficiency/Eff_pt.png");
   c->Close();
   c = new TCanvas();
 
@@ -780,7 +827,7 @@ void filter()
 
   PA_Eff->Draw();
 
-  c->SaveAs("filterOutput/Eff_PA.png");
+  c->SaveAs(saveDir + "/efficiency/Eff_PA.png");
   c->Close();
   c = new TCanvas();
 
@@ -799,10 +846,11 @@ void filter()
 
   azimuth_Eff->Draw();
 
-  c->SaveAs("filterOutput/Eff_azimuth.png");
+  c->SaveAs(saveDir + "/efficiency/Eff_azimuth.png");
 
   c->Clear();
   c->Close();
+  c = new TCanvas();
 
   //draws an efficiency graph for transverse momentum for best match particles
   TEfficiency* ptAll_Eff = new TEfficiency("ptBM_Eff", "Efficiency of transverse momentum reconstruction for all particles;Transverse momentum (GeV);Efficiency", 20, 0, 2000);
@@ -819,7 +867,7 @@ void filter()
 
   ptAll_Eff->Draw();
 
-  c->SaveAs("filterOutput/EffAll_pt.png");
+  c->SaveAs(saveDir + "/efficiency/EffAll_pt.png");
   c->Close();
   c = new TCanvas();
 
@@ -838,7 +886,7 @@ void filter()
 
   PAAll_Eff->Draw();
 
-  c->SaveAs("filterOutput/EffAll_PA.png");
+  c->SaveAs(saveDir + "/efficiency/EffAll_PA.png");
   c->Close();
   c = new TCanvas();
 
@@ -858,7 +906,7 @@ iciency", 20, -1.6, 1.6);
 
   azimuthAll_Eff->Draw();
 
-  c->SaveAs("filterOutput/EffAll_azimuth.png");
+  c->SaveAs(saveDir + "/efficiency/EffAll_azimuth.png");
   c->Close();
 
   //setting new line colors so the plots are differentable when put on the same graph
@@ -894,7 +942,7 @@ iciency", 20, -1.6, 1.6);
   gPad->SetGrid(1, 0);
   gPad->BuildLegend(0.1, 0.1, 0.3, 0.25, "");
 
-  c->SaveAs("filterOutput/multiBMEff_pt.png");
+  c->SaveAs(saveDir + "/efficiency/multiBMEff_pt.png");
   c->Close();
 
   //creates a multigraph for the polar angle efficiencies
@@ -913,7 +961,7 @@ iciency", 20, -1.6, 1.6);
   gPad->SetGrid(1, 0);
   gPad->BuildLegend(0.1, 0.1, 0.3, 0.25, "");
 
-  c->SaveAs("filterOutput/multiBMEff_PA.png");
+  c->SaveAs(saveDir + "/efficiency/multiBMEff_PA.png");
   c->Close();
 
   //creates a multigraph for the azimuth efficiencies
@@ -932,7 +980,7 @@ iciency", 20, -1.6, 1.6);
   gPad->SetGrid(1, 0);
   gPad->BuildLegend(0.1, 0.1, 0.3, 0.25, "");
 
-  c->SaveAs("filterOutput/multiBMEff_azimuth.png");
+  c->SaveAs(saveDir + "/efficiency/multiBMEff_azimuth.png");
   c->Close();
 
 }
