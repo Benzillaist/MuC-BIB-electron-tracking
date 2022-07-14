@@ -1,13 +1,13 @@
-void filter()
+void filter_single()
 {
   /////////////////////////////
   //GENERAL ANALYSIS SETTINGS//
   /////////////////////////////
   
-  auto fileName = "ntuple.root";
+  auto fileName = "10k-ACTS.root";
   auto treeName = "MyLCTuple";
 
-  TString saveDir = "filterOutput";
+  TString saveDir = "10k-ACTS";
 
   /////////////////////////////
 
@@ -72,16 +72,19 @@ void filter()
   TH1F *electronReco_pt = new TH1F("elRec_pt", "Electron pt", 20, 0, 2000);
   TH1F *photonReco_pt = new TH1F("phRec_pt", "Photon pt", 20, 0, 2000);
   TH1F *neutronReco_pt = new TH1F("nuRec_pt", "Neutron pt", 20, 0, 2000);
+  TH1F *pionReco_pt = new TH1F("piRec_pt", "Pion pt", 20, 0, 2000);
 
   //polar angle
   TH1F *electronReco_PA = new TH1F("elRec_PA", "Electron PA", 20, 0, 3.2);
   TH1F *photonReco_PA = new TH1F("phRec_PA", "Photon PA", 20, 0, 3.2);
   TH1F *neutronReco_PA = new TH1F("nuRec_PA", "Neutron PA", 20, 0, 3.2);
+  TH1F *pionReco_PA = new TH1F("piRec_PA", "Pion PA", 20, 0, 3.2);
 
   //azimuth
   TH1F *electronReco_azimuth = new TH1F("elRec_a", "Electron azimuth", 20, -3.2, 3.2);
   TH1F *photonReco_azimuth = new TH1F("phRec_a", "Photon azimuth", 20, -3.2, 3.2);
   TH1F *neutronReco_azimuth = new TH1F("nuRec_a", "Neutron azimuth", 20, -3.2, 3.2);
+  TH1F *pionReco_azimuth = new TH1F("piRec_a", "Pion azimuth", 20, -3.2, 3.2);
 
   //creates a reader that will traverse the events of the simulation
   TTreeReader myReader("MyLCTuple", openFile);
@@ -168,6 +171,12 @@ void filter()
 	neutronReco_pt->Fill(rcmoTemp.Perp());
 	neutronReco_PA->Fill(rcmoTemp.Theta());
 	neutronReco_azimuth->Fill(rcmoTemp.Phi());
+
+	//if the particle is a pion, add it to a fourth set of histograms
+      } else if(abs(rctyp_RA.At(i)) == 211) {
+	pionReco_pt->Fill(rcmoTemp.Perp());
+	pionReco_PA->Fill(rcmoTemp.Theta());
+	pionReco_azimuth->Fill(rcmoTemp.Phi());
       }
     }
 
@@ -317,10 +326,12 @@ void filter()
   electronReco_pt->SetLineColor(kBlue);
   photonReco_pt->SetLineColor(kRed);
   neutronReco_pt->SetLineColor(kBlack);
+  pionReco_pt->SetLineColor(kGreen);
 
   hs->Add(electronReco_pt);
   hs->Add(photonReco_pt);
   hs->Add(neutronReco_pt);
+  hs->Add(pionReco_pt);
   
   hs->Draw("nostack");
 
@@ -339,11 +350,13 @@ void filter()
   electronReco_PA->SetLineColor(kBlue);
   photonReco_PA->SetLineColor(kRed);
   neutronReco_PA->SetLineColor(kBlack);
+  pionReco_PA->SetLineColor(kGreen);
 
   hs->Add(electronReco_PA);
   hs->Add(photonReco_PA);
   hs->Add(neutronReco_PA);
-    
+  hs->Add(pionReco_PA);
+  
   hs->Draw("nostack");
 
   gPad->SetGrid(1, 0);
@@ -361,10 +374,12 @@ void filter()
   electronReco_azimuth->SetLineColor(kBlue);
   photonReco_azimuth->SetLineColor(kRed);
   neutronReco_azimuth->SetLineColor(kBlack);
+  pionReco_azimuth->SetLineColor(kGreen);
 
   hs->Add(electronReco_azimuth);
   hs->Add(photonReco_azimuth);
   hs->Add(neutronReco_azimuth);
+  hs->Add(pionReco_azimuth);
 
   hs->Draw("nostack");
 
@@ -922,9 +937,9 @@ iciency", 20, -1.6, 1.6);
   PA_Eff->SetTitle("Just electrons");
   azimuth_Eff->SetTitle("Just electrons");
 
-  ptAll_Eff->SetTitle("Best match");
-  PAAll_Eff->SetTitle("Best match");
-  azimuthAll_Eff->SetTitle("Best match");
+  ptAll_Eff->SetTitle("Electrons and photons");
+  PAAll_Eff->SetTitle("Electrons and photons");
+  azimuthAll_Eff->SetTitle("Electrons and photons");
 
   //creates a multigraph for the transverse momentum efficiencies
   TMultiGraph *mg = new TMultiGraph();
@@ -935,7 +950,7 @@ iciency", 20, -1.6, 1.6);
 
   mg->SetTitle("Transverse momentum reconstruction efficiencies");
   mg->GetXaxis()->SetTitle("Transverse momentum (GeV)");
-  mg->GetYaxis()->SetTitle("Count");
+  mg->GetYaxis()->SetTitle("Efficiency");
 
   mg->Draw("aZ");
 
@@ -954,7 +969,7 @@ iciency", 20, -1.6, 1.6);
 
   mg->SetTitle("Polar angle reconstruction efficiencies");
   mg->GetXaxis()->SetTitle("Polar angle (Rads)");
-  mg->GetYaxis()->SetTitle("Count");
+  mg->GetYaxis()->SetTitle("Efficiency");
   
   mg->Draw("aZ");
 
@@ -973,7 +988,7 @@ iciency", 20, -1.6, 1.6);
 
   mg->SetTitle("Azimuth reconstruction efficiencies");
   mg->GetXaxis()->SetTitle("Azimuth (Rads)");
-  mg->GetYaxis()->SetTitle("Count");
+  mg->GetYaxis()->SetTitle("Efficiency");
   
   mg->Draw("aZ");
 
