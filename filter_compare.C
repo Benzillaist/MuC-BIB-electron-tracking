@@ -10,7 +10,7 @@ void filter_compare()
 
   auto fileName2 = "10k-Conf.root";
   auto treeName2 = "MyLCTuple";
-  TString filePrefix2 = "Conf";
+  TString filePrefix2 = "Conformal";
 
   TString saveDir = "10k-ACTS-Conf-Compare";
 
@@ -40,44 +40,44 @@ void filter_compare()
   TH1F *realAllPassed_pt1 = new TH1F("AP_pt1", filePrefix1 + ":Best match", 20, 0, 2000); //best match transverse momentum from linked electrons and photons
   TH1F *realEPSum_pt1 = new TH1F("EPS_pt1", filePrefix1 + ":Summed particles", 20, 0, 2000); //summed transverse momentum from linked electrons and photons
   TH1F *recoTrackLink_pt1 = new TH1F("recTck_pt1", filePrefix1 + ":Reco track", 40, -2000, 2000); //transverse momentum from individual track reconstruction segments
-  TH1F *realAll_pt1 = new TH1F("rA_pt1", filePrefix1 + "All electrons", 20, 0, 2000); //transverse momentum of the truth particles
+  TH1F *realAll_pt1 = new TH1F("rA_pt1", filePrefix1 + ":All electrons", 20, 0, 2000); //transverse momentum of the truth particles
   //Polar angle
   TH1F *realPassed_PA1 = new TH1F("rP_PA1", filePrefix1 + ":Linked electrons", 20, 0, 3.2); //see above
   TH1F *realAllPassed_PA1 = new TH1F("AP_PA1", filePrefix1 + ":Best match", 20, 0, 3.2);
   TH1F *realEPSum_PA1 = new TH1F("EPS_PA1", filePrefix1 + ":Summed particles", 20, 0, 3.2);
   TH1F *realAll_PA1 = new TH1F("rA_PA1", filePrefix1 + ":All electrons", 20, 0, 3.2);
   //Azimuth
-  TH1F *realPassed_azimuth1 = new TH1F("rP_a1", filePrefix1 + ":Linked electrons ACTS", 20, -3.2, 3.2); //see above
-  TH1F *realAllPassed_azimuth1 = new TH1F("AP_a1", filePrefix1 + ":Best match ACTS", 20, -3.2, 3.2);
-  TH1F *realEPSum_azimuth1 = new TH1F("EPS_a1", filePrefix1 + ":Summed particles ACTS", 20, -3.2, 3.2);
-  TH1F *realAll_azimuth1 = new TH1F("rA_a1", filePrefix1 + ":All electrons ACTS", 20, -3.2, 3.2);
+  TH1F *realPassed_azimuth1 = new TH1F("rP_a1", filePrefix1 + ":Linked electrons", 20, -3.2, 3.2); //see above
+  TH1F *realAllPassed_azimuth1 = new TH1F("AP_a1", filePrefix1 + ":Best match", 20, -3.2, 3.2);
+  TH1F *realEPSum_azimuth1 = new TH1F("EPS_a1", filePrefix1 + ":Summed particles", 20, -3.2, 3.2);
+  TH1F *realAll_azimuth1 = new TH1F("rA_a1", filePrefix1 + ":All electrons", 20, -3.2, 3.2);
 
   //histograms for weights of particles
   TH1D *recoWeight_El1 = new TH1D("realElWeights1", filePrefix1 + ":Reco link electron weights", 26, 0, 1.3); //link weights of reconstructed electrons linked to truth electrons
   TH1D *recoWeight_BM1 = new TH1D("realAllWeights1", filePrefix1 + ":Reco link all weights", 26, 0, 1.3); // link weights of particles linked to truth electrons
 
   //histograms for storing differences between values
-  TH1F *relResOG_pt1 = new TH1F("diffPt1", filePrefix1 + ":Simple electron linking", 40, -2000, 2000); //difference between reconstructed linked particles and the truth particles in transverse momentum
-  TH1F *relResOG_PA1 = new TH1F("diffPA1", filePrefix1 + ":Simple electron linking", 20, -3.2, 3.2); //difference between reconstructed linked particles and the truth particles in transverse momentum
-  TH1F *relResOG_azimuth1 = new TH1F("diffA1", filePrefix1 + ":Simple electron linking", 20, -3.2, 3.2); //difference between reconstructed linked particles and the truth particles in transverse momentum
+  TH1F *relResOG_pt1 = new TH1F("diffPt1", filePrefix1 + ":Simple electron linking", 20, -1, 1); //difference between reconstructed linked particles and the truth particles in transverse momentum
+  TH1F *relResOG_PA1 = new TH1F("diffPA1", filePrefix1 + ":Simple electron linking", 20, -1, 1); //difference between reconstructed linked particles and the truth particles in transverse momentum
+  TH1F *relResOG_azimuth1 = new TH1F("diffA1", filePrefix1 + ":Simple electron linking", 20, -1, 1); //difference between reconstructed linked particles and the truth particles in transverse momentum
   TH1F *deltaR_Hist1 = new TH1F("deltaR1", filePrefix1 + ":MyLCTuple", 25, 0, 0.0025); //delta R (delta polar angle and azimuth combined)
-  TH1F *relResEPSum_pt1 = new TH1F("rEP_pt1", filePrefix1 + ":Summed electrons and protons", 40, -2000, 2000); //resolution of transverse momentum reconstruction when the reconstructed particle is made up of all reconstructed electrons and photons
-  TH1F *relResEPSum_PA1 = new TH1F("rEP_PA1", filePrefix1 + ":Summed electrons and protons", 20, -3.2, 3.2); //resolution of polar angle reconstructed when the reconstruction particle is made up of all reconstructed electrons and photons
-  TH1F *relResEPSum_azimuth1 = new TH1F("rEP_a1", filePrefix1 + ":Summed electrons and protons", 20, -3.2, 3.2); //resolution of azimuth reconstruction when the reconstructed particle is made up of all reconstructed electrons and photons
-  TH1F *relResBestMatch_pt1 = new TH1F("rBM_pt1", filePrefix1 + ":Best match link", 40, -2000, 2000); //resolution of transverse momentum reconstruction when the reconstructed particle is the best match
-  TH1F *relResBestMatch_PA1 = new TH1F("rMB_PA1", filePrefix1 + ":Best match link", 20, -3.2, 3.2); //resolution of polar angle reconstructed when the reconstruction particle is the best match
-  TH1F *relResBestMatch_azimuth1 = new TH1F("rMB_a1", filePrefix1 + ":Best match link", 20, -3.2, 3.2); //resolution of azimuth reconstruction when the reconstructed particle is made up of the best match
-  TH1F *relResPhotonReco_pt1 = new TH1F("rPR_pt1", filePrefix1 + ":Best match photon link", 40, -2000, 2000); //resolution of transverse momentum reconstruction when the reconstructed particle is the best photon match
-  TH1F *relResPhotonReco_PA1 = new TH1F("rPR_PA1", filePrefix1 + ":Best match photon link", 20, -3.2, 3.2); //resolution of transverse momentum reconstruction when the reconstructed particle is the best photon match
-  TH1F *relResPhotonReco_azimuth1 = new TH1F("rPR_a1", filePrefix1 + ":Best match photon link", 20, -3.2, 3.2); //resolution of transverse momentum reconstruction when the reconstructed particle is the best photon match
-  TH1F *relResTrackLink_pt1 = new TH1F("rTck_pt1", filePrefix1 + ":Reco track", 40, -2000, 2000); //transverse momentum from individual track reconstruction segments
+  TH1F *relResEPSum_pt1 = new TH1F("rEP_pt1", filePrefix1 + ":Electron + photon sum", 20, -1, 1); //resolution of transverse momentum reconstruction when the reconstructed particle is made up of all reconstructed electrons and photons
+  TH1F *relResEPSum_PA1 = new TH1F("rEP_PA1", filePrefix1 + ":Electron + photon sum", 20, -1, 1); //resolution of polar angle reconstructed when the reconstruction particle is made up of all reconstructed electrons and photons
+  TH1F *relResEPSum_azimuth1 = new TH1F("rEP_a1", filePrefix1 + ":Electron + photon sum", 20, -1, 1); //resolution of azimuth reconstruction when the reconstructed particle is made up of all reconstructed electrons and photons
+  TH1F *relResBestMatch_pt1 = new TH1F("rBM_pt1", filePrefix1 + ":Best match link", 20, -1, 1); //resolution of transverse momentum reconstruction when the reconstructed particle is the best match
+  TH1F *relResBestMatch_PA1 = new TH1F("rMB_PA1", filePrefix1 + ":Best match link", 20, -1, 1); //resolution of polar angle reconstructed when the reconstruction particle is the best match
+  TH1F *relResBestMatch_azimuth1 = new TH1F("rMB_a1", filePrefix1 + ":Best match link", 20, -2, 2); //resolution of azimuth reconstruction when the reconstructed particle is made up of the best match
+  TH1F *relResPhotonReco_pt1 = new TH1F("rPR_pt1", filePrefix1 + ":Best match photon link", 20, -1, 1); //resolution of transverse momentum reconstruction when the reconstructed particle is the best photon match
+  TH1F *relResPhotonReco_PA1 = new TH1F("rPR_PA1", filePrefix1 + ":Best match photon link", 20, -1, 1); //resolution of transverse momentum reconstruction when the reconstructed particle is the best photon match
+  TH1F *relResPhotonReco_azimuth1 = new TH1F("rPR_a1", filePrefix1 + ":Best match photon link", 20, -1, 1); //resolution of transverse momentum reconstruction when the reconstructed particle is the best photon match
+  TH1F *relResTrackLink_pt1 = new TH1F("rTck_pt1", filePrefix1 + ":Reco track", 20, -1, 1); //transverse momentum from individual track reconstruction segments
 
   //histograms for storing attributes unique to certain reconstructed types of particles
   //transverse momentum
-  TH1F *electronReco_pt1 = new TH1F("elRec_pt1", filePrefix1 + ":Electron pt", 20, 0, 2000);
-  TH1F *photonReco_pt1 = new TH1F("phRec_pt1", filePrefix1 + ":Photon pt", 20, 0, 2000);
-  TH1F *neutronReco_pt1 = new TH1F("nuRec_pt1", filePrefix1 + ":Neutron pt", 20, 0, 2000);
-  TH1F *pionReco_pt1 = new TH1F("piRec_pt1", filePrefix1 + ":Pion pt", 20, 0, 2000);
+  TH1F *electronReco_pt1 = new TH1F("elRec_pt1", filePrefix1 + ":Electron pt", 30, 0, 3000);
+  TH1F *photonReco_pt1 = new TH1F("phRec_pt1", filePrefix1 + ":Photon pt", 30, 0, 3000);
+  TH1F *neutronReco_pt1 = new TH1F("nuRec_pt1", filePrefix1 + ":Neutron pt", 30, 0, 3000);
+  TH1F *pionReco_pt1 = new TH1F("piRec_pt1", filePrefix1 + ":Pion pt", 30, 0, 3000);
 
   //polar angle
   TH1F *electronReco_PA1 = new TH1F("elRec_PA1", filePrefix1 + ":Electron PA", 20, 0, 3.2);
@@ -115,20 +115,20 @@ void filter_compare()
   TH1D *recoWeight_BM2 = new TH1D("realAllWeights2", filePrefix2 + ":Reco link all weights", 26, 0, 1.3); // link weights of particles linked to truth electrons
 
   //histograms for storing differences between values
-  TH1F *relResOG_pt2 = new TH1F("diffPt2", filePrefix2 + ":Simple electron linking", 40, -2000, 2000); //difference between reconstructed linked particles and the truth particles in transverse momentum
-  TH1F *relResOG_PA2 = new TH1F("diffPA2", filePrefix2 + ":Simple electron linking", 20, -3.2, 3.2); //difference between reconstructed linked particles and the truth particles in transverse momentum
-  TH1F *relResOG_azimuth2 = new TH1F("diffA2", filePrefix2 + ":Simple electron linking", 20, -3.2, 3.2); //difference between reconstructed linked particles and the truth particles in transverse momentum
+  TH1F *relResOG_pt2 = new TH1F("diffPt2", filePrefix2 + ":Simple electron linking", 20, -1, 1); //difference between reconstructed linked particles and the truth particles in transverse momentum
+  TH1F *relResOG_PA2 = new TH1F("diffPA2", filePrefix2 + ":Simple electron linking", 20, -1, 1); //difference between reconstructed linked particles and the truth particles in transverse momentum
+  TH1F *relResOG_azimuth2 = new TH1F("diffA2", filePrefix2 + ":Simple electron linking", 20, -1, 1); //difference between reconstructed linked particles and the truth particles in transverse momentum
   TH1F *deltaR_Hist2 = new TH1F("deltaR2", filePrefix2 + ":MyLCTuple", 25, 0, 0.0025); //delta R (delta polar angle and azimuth combined)
-  TH1F *relResEPSum_pt2 = new TH1F("rEP_pt2", filePrefix2 + ":Summed electrons and protons", 40, -2000, 2000); //resolution of transverse momentum reconstruction when the reconstructed particle is made up of all reconstructed electrons and photons
-  TH1F *relResEPSum_PA2 = new TH1F("rEP_PA2", filePrefix2 + ":Summed electrons and protons", 20, -3.2, 3.2); //resolution of polar angle reconstructed when the reconstruction particle is made up of all reconstructed electrons and photons
-  TH1F *relResEPSum_azimuth2 = new TH1F("rEP_a2", filePrefix2 + ":Summed electrons and protons", 20, -3.2, 3.2); //resolution of azimuth reconstruction when the reconstructed particle is made up of all reconstructed electrons and photons
-  TH1F *relResBestMatch_pt2 = new TH1F("rBM_pt2", filePrefix2 + ":Best match link", 40, -2000, 2000); //resolution of transverse momentum reconstruction when the reconstructed particle is the best match
-  TH1F *relResBestMatch_PA2 = new TH1F("rMB_PA2", filePrefix2 + ":Best match link", 20, -3.2, 3.2); //resolution of polar angle reconstructed when the reconstruction particle is the best match
-  TH1F *relResBestMatch_azimuth2 = new TH1F("rMB_a2", filePrefix2 + ":Best match link", 20, -3.2, 3.2); //resolution of azimuth reconstruction when the reconstructed particle is made up of the best match
-  TH1F *relResPhotonReco_pt2 = new TH1F("rPR_pt2", filePrefix2 + ":Best match photon link", 40, -2000, 2000); //resolution of transverse momentum reconstruction when the reconstructed particle is the best photon match
-  TH1F *relResPhotonReco_PA2 = new TH1F("rPR_PA2", filePrefix2 + ":Best match photon link", 20, -3.2, 3.2); //resolution of transverse momentum reconstruction when the reconstructed particle is the best photon match
-  TH1F *relResPhotonReco_azimuth2 = new TH1F("rPR_a2", filePrefix2 + ":Best match photon link", 20, -3.2, 3.2); //resolution of transverse momentum reconstruction when the reconstructed particle is the best photon match
-  TH1F *relResTrackLink_pt2 = new TH1F("rTck_pt2", filePrefix2 + ":Reco track", 40, -2000, 2000); //transverse momentum from individual track reconstruction segments
+  TH1F *relResEPSum_pt2 = new TH1F("rEP_pt2", filePrefix2 + ":Electron + photon sum", 20, -1, 1); //resolution of transverse momentum reconstruction when the reconstructed particle is made up of all reconstructed electrons and photons
+  TH1F *relResEPSum_PA2 = new TH1F("rEP_PA2", filePrefix2 + ":Electron + photon sum", 20, -1, 1); //resolution of polar angle reconstructed when the reconstruction particle is made up of all reconstructed electrons and photons
+  TH1F *relResEPSum_azimuth2 = new TH1F("rEP_a2", filePrefix2 + ":Electron + photon sum", 20, -1, 1); //resolution of azimuth reconstruction when the reconstructed particle is made up of all reconstructed electrons and photons
+  TH1F *relResBestMatch_pt2 = new TH1F("rBM_pt2", filePrefix2 + ":Best match link", 20, -1, 1); //resolution of transverse momentum reconstruction when the reconstructed particle is the best match
+  TH1F *relResBestMatch_PA2 = new TH1F("rMB_PA2", filePrefix2 + ":Best match link", 20, -1, 1); //resolution of polar angle reconstructed when the reconstruction particle is the best match
+  TH1F *relResBestMatch_azimuth2 = new TH1F("rMB_a2", filePrefix2 + ":Best match link", 20, -1, 1); //resolution of azimuth reconstruction when the reconstructed particle is made up of the best match
+  TH1F *relResPhotonReco_pt2 = new TH1F("rPR_pt2", filePrefix2 + ":Best match photon link", 20, -1, 1); //resolution of transverse momentum reconstruction when the reconstructed particle is the best photon match
+  TH1F *relResPhotonReco_PA2 = new TH1F("rPR_PA2", filePrefix2 + ":Best match photon link", 20, -1, 1); //resolution of transverse momentum reconstruction when the reconstructed particle is the best photon match
+  TH1F *relResPhotonReco_azimuth2 = new TH1F("rPR_a2", filePrefix2 + ":Best match photon link", 20, -1, 1); //resolution of transverse momentum reconstruction when the reconstructed particle is the best photon match
+  TH1F *relResTrackLink_pt2 = new TH1F("rTck_pt2", filePrefix2 + ":Reco track", 20, -1, 1); //transverse momentum from individual track reconstruction segments
 
   //histograms for storing attributes unique to certain reconstructed types of particles
   //transverse momentum
@@ -419,8 +419,8 @@ void filter_compare()
 
       //fills in histograms with differences
       relResOG_pt2->Fill((mcmoTemp2.Perp() - rcmoTemp2.Perp()) / mcmoTemp2.Perp());
-      relResOG_PA2->Fill(mcmoTemp2.Theta() - rcmoTemp2.Theta() / mcmoTemp2.Theta());
-      relResOG_azimuth2->Fill(mcmoTemp2.Phi() - rcmoTemp2.Phi() / mcmoTemp2.Phi());
+      relResOG_PA2->Fill((mcmoTemp2.Theta() - rcmoTemp2.Theta()) / mcmoTemp2.Theta());
+      relResOG_azimuth2->Fill((mcmoTemp2.Phi() - rcmoTemp2.Phi()) / mcmoTemp2.Phi());
 
       deltaR_Hist2->Fill(sqrt((dPATemp2*dPATemp2) + (dATemp2*dATemp2)));
     }
@@ -520,8 +520,8 @@ void filter_compare()
 	relResPhotonReco_azimuth2->Fill((mcmoTemp2.Phi() - rcmoTemp2.Phi()) / mcmoTemp2.Perp());
 
 	if(tsome_RA2.GetSize() > 0){
-	  recoTrackLink_pt1->Fill(((0.3 * 3.57) / tsome_RA1.At(0)) / 1000);
-	  relResTrackLink_pt1->Fill((mcmoTemp1.Perp() - abs(((0.3 * 3.57) / tsome_RA1.At(0)) / 1000)) / mcmoTemp2.Perp());
+	  recoTrackLink_pt2->Fill(((0.3 * 3.57) / tsome_RA2.At(0)) / 1000);
+	  relResTrackLink_pt2->Fill((mcmoTemp2.Perp() - abs(((0.3 * 3.57) / tsome_RA2.At(0)) / 1000)) / mcmoTemp2.Perp());
 	}
       }
     }
@@ -541,12 +541,12 @@ void filter_compare()
     //finds the difference between the truth and reconstructed particles (sum of photons and electrons)
     if(rcmoSumTemp1.X() != 0 || rcmoSumTemp1.Y() != 0 || rcmoSumTemp1.Z() != 0){
 
-      //fills in the electron and proton sum histograms
+      //fills in the electron and photon sum histograms
       realEPSum_pt1->Fill(rcmoSumTemp1.Perp());
       realEPSum_PA1->Fill(rcmoSumTemp1.Theta());
       realEPSum_azimuth1->Fill(rcmoSumTemp1.Phi());
       
-      //fills in the electron and proton sum resolution histograms
+      //fills in the electron and photon sum resolution histograms
       relResEPSum_pt1->Fill((mcmoTemp1.Perp() - rcmoSumTemp1.Perp()) / mcmoTemp1.Perp());
       relResEPSum_PA1->Fill((mcmoTemp1.Theta() - rcmoSumTemp1.Theta()) / mcmoTemp1.Theta());
       relResEPSum_azimuth1->Fill((mcmoTemp1.Phi() - rcmoSumTemp1.Phi()) / mcmoTemp1.Phi());
@@ -554,12 +554,12 @@ void filter_compare()
 
     if(rcmoSumTemp2.X() != 0 || rcmoSumTemp2.Y() != 0 || rcmoSumTemp2.Z() != 0) {
       
-      //fills in the electron and proton sum histograms
+      //fills in the electron and photon sum histograms
       realEPSum_pt2->Fill(rcmoSumTemp2.Perp());
       realEPSum_PA2->Fill(rcmoSumTemp2.Theta());
       realEPSum_azimuth2->Fill(rcmoSumTemp2.Phi());
 
-      //fills in the electron and proton sum resolution histograms
+      //fills in the electron and photon sum resolution histograms
       relResEPSum_pt2->Fill((mcmoTemp2.Perp() - rcmoSumTemp2.Perp()) / mcmoTemp2.Perp());
       relResEPSum_PA2->Fill((mcmoTemp2.Theta() - rcmoSumTemp2.Theta()) / mcmoTemp2.Theta());
       relResEPSum_azimuth2->Fill((mcmoTemp2.Phi() - rcmoSumTemp2.Phi()) / mcmoTemp2.Phi());
@@ -578,19 +578,24 @@ void filter_compare()
   //=====================================//
 
   //draws the pt histograms for electrons, photons, and neutrons on top of each other
-  THStack *hs = new THStack("hs", "Transverse momenta of electrons, photons, and neutrons;Transverse momentum (GeV);Count");
+  THStack *hs = new THStack("hs", "Transverse momenta of electrons, photons, neutrons, and pions;Transverse momentum (GeV);Count");
 
   c->SetLogy();
   
   electronReco_pt1->SetLineColor(kBlue);
   photonReco_pt1->SetLineColor(kBlack);
-  neutronReco_pt1->SetLineColor(kCyan);
+  neutronReco_pt1->SetLineColor(kRed);
   pionReco_pt1->SetLineColor(kGreen);
 
-  electronReco_pt2->SetLineColor(kRed);
-  photonReco_pt2->SetLineColor(kYellow);
-  neutronReco_pt2->SetLineColor(kViolet);
-  pionReco_pt2->SetLineColor(kOrange);
+  electronReco_pt2->SetLineColor(kBlue);
+  photonReco_pt2->SetLineColor(kBlack);
+  neutronReco_pt2->SetLineColor(kRed);
+  pionReco_pt2->SetLineColor(kGreen);
+
+  electronReco_pt2->SetLineStyle(7);
+  photonReco_pt2->SetLineStyle(7);
+  neutronReco_pt2->SetLineStyle(7);
+  pionReco_pt2->SetLineStyle(7);
 
   hs->Add(electronReco_pt1);
   hs->Add(photonReco_pt1);
@@ -605,27 +610,100 @@ void filter_compare()
   hs->Draw("nostack");
 
   gPad->SetGrid(1, 0);
-  gPad->BuildLegend(0.7, 0.7, 0.9, 0.9, "");
+  gPad->BuildLegend(0.6, 0.6, 0.9, 0.9, "");
   
-  c->SaveAs(saveDir + "/allPart_pt.png");
+  c->SaveAs(saveDir + "/reconstructed-types/allPart_pt.png");
+  c->Close();
+  c = new TCanvas();
+
+  //draws the pt histograms for electrons on top of each other
+  hs = new THStack("hs", "Transverse momenta of electrons;Transverse momentum (GeV);Count");
+
+  c->SetLogy();
+
+  hs->Add(electronReco_pt1);
+  hs->Add(electronReco_pt2);
+
+  hs->Draw("nostack");
+
+  gPad->SetGrid(1, 0);
+  gPad->BuildLegend(0.6, 0.6, 0.9, 0.9, "");
+
+  c->SaveAs(saveDir + "/reconstructed-types/recoElectron_pt.png");
+  c->Close();
+  c = new TCanvas();
+
+  //draws the pt histograms for photons on top of each other
+  hs = new THStack("hs", "Transverse momenta of photons;Transverse momentum (GeV);Count");
+
+  c->SetLogy();
+
+  hs->Add(photonReco_pt1);
+  hs->Add(photonReco_pt2);
+
+  hs->Draw("nostack");
+
+  gPad->SetGrid(1, 0);
+  gPad->BuildLegend(0.6, 0.6, 0.9, 0.9, "");
+
+  c->SaveAs(saveDir + "/reconstructed-types/recoPhoton_pt.png");
+  c->Close();
+  c = new TCanvas();
+
+  //draws the pt histograms for neutrons on top of each other
+  hs = new THStack("hs", "Transverse momenta of neutrons;Transverse momentum (GeV);Count");
+
+  c->SetLogy();
+
+  hs->Add(neutronReco_pt1);
+  hs->Add(neutronReco_pt2);
+
+  hs->Draw("nostack");
+
+  gPad->SetGrid(1, 0);
+  gPad->BuildLegend(0.6, 0.6, 0.9, 0.9, "");
+
+  c->SaveAs(saveDir + "/reconstructed-types/recoNeutron_pt.png");
+  c->Close();
+  c = new TCanvas();
+
+  //draws the pt histograms for pions on top of each other
+  hs = new THStack("hs", "Transverse momenta of pions;Transverse momentum (GeV);Count");
+
+  c->SetLogy();
+
+  hs->Add(pionReco_pt1);
+  hs->Add(pionReco_pt2);
+
+  hs->Draw("nostack");
+
+  gPad->SetGrid(1, 0);
+  gPad->BuildLegend(0.6, 0.6, 0.9, 0.9, "");
+
+  c->SaveAs(saveDir + "/reconstructed-types/recoPion_pt.png");
   c->Close();
   c = new TCanvas();
 
   //draws the polar angle histograms for electrons, photons, and neutrons on top of each other
-  hs = new THStack("hs", "Polar angle of electrons, photons, and neutrons;Polar angle (Rads);Count");
+  hs = new THStack("hs", "Polar angle of electrons, photons, neutrons, and pions;Polar angle (Rads);Count");
 
   c->SetLogy();
 
   electronReco_PA1->SetLineColor(kBlue);
   photonReco_PA1->SetLineColor(kBlack);
-  neutronReco_PA1->SetLineColor(kCyan);
+  neutronReco_PA1->SetLineColor(kRed);
   pionReco_PA1->SetLineColor(kGreen);
 
-  electronReco_PA2->SetLineColor(kRed);
-  photonReco_PA2->SetLineColor(kYellow);
-  neutronReco_PA2->SetLineColor(kViolet);
-  pionReco_PA2->SetLineColor(kOrange);
+  electronReco_PA2->SetLineColor(kBlue);
+  photonReco_PA2->SetLineColor(kBlack);
+  neutronReco_PA2->SetLineColor(kRed);
+  pionReco_PA2->SetLineColor(kGreen);
 
+  electronReco_PA2->SetLineStyle(7);
+  photonReco_PA2->SetLineStyle(7);
+  neutronReco_PA2->SetLineStyle(7);
+  pionReco_PA2->SetLineStyle(7);
+  
   hs->Add(electronReco_PA1);
   hs->Add(photonReco_PA1);
   hs->Add(neutronReco_PA1);
@@ -639,26 +717,99 @@ void filter_compare()
   hs->Draw("nostack");
 
   gPad->SetGrid(1, 0);
-  gPad->BuildLegend(0.7, 0.1, 0.9, 0.3, "");
+  gPad->BuildLegend(0.15, 0.1, 0.4, 0.4, "");
   
-  c->SaveAs(saveDir + "/allPart_PA.png");
+  c->SaveAs(saveDir + "/reconstructed-types/allPart_PA.png");
+  c->Close();
+  c = new TCanvas();
+
+  //draws the polar angle histograms for electrons on top of each other
+  hs = new THStack("hs", "Polar angle of electrons;Polar angle (Rads);Count");
+
+  c->SetLogy();
+
+  hs->Add(electronReco_PA1);
+  hs->Add(electronReco_PA2);
+
+  hs->Draw("nostack");
+
+  gPad->SetGrid(1, 0);
+  gPad->BuildLegend(0.4, 0.1, 0.6, 0.3, "");
+
+  c->SaveAs(saveDir + "/reconstructed-types/recoElectron_PA.png");
+  c->Close();
+  c = new TCanvas();
+
+  //draws the polar angle histograms for photons on top of each other
+  hs = new THStack("hs", "Polar angle of photons;Polar angle (Rads);Count");
+
+  c->SetLogy();
+
+  hs->Add(photonReco_PA1);
+  hs->Add(photonReco_PA2);
+
+  hs->Draw("nostack");
+
+  gPad->SetGrid(1, 0);
+  gPad->BuildLegend(0.4, 0.1, 0.6, 0.3, "");
+
+  c->SaveAs(saveDir + "/reconstructed-types/recoPhoton_PA.png");
+  c->Close();
+  c = new TCanvas();
+
+  //draws the polar angle histograms for neutrons on top of each other
+  hs = new THStack("hs", "Polar angle of neutrons;Polar angle (Rads);Count");
+
+  c->SetLogy();
+
+  hs->Add(neutronReco_PA1);
+  hs->Add(neutronReco_PA2);
+
+  hs->Draw("nostack");
+
+  gPad->SetGrid(1, 0);
+  gPad->BuildLegend(0.4, 0.1, 0.6, 0.3, "");
+
+  c->SaveAs(saveDir + "/reconstructed-types/recoNeutron_PA.png");
+  c->Close();
+  c = new TCanvas();
+
+  //draws the polar angle histograms for pions on top of each other
+  hs = new THStack("hs", "Polar angle of pions;Polar angle (Rads);Count");
+
+  c->SetLogy();
+
+  hs->Add(pionReco_PA1);
+  hs->Add(pionReco_PA2);
+
+  hs->Draw("nostack");
+
+  gPad->SetGrid(1, 0);
+  gPad->BuildLegend(0.4, 0.1, 0.6, 0.3, "");
+
+  c->SaveAs(saveDir + "/reconstructed-types/recoPion_PA.png");
   c->Close();
   c = new TCanvas();
 
   //draws the azimuth histograms for electrons, photons, and neutrons on top of each other
-  hs = new THStack("hs", "Azimuth of electrons, photons, and neutrons;Azimuth (Rads);Count");
+  hs = new THStack("hs", "Azimuth of electrons, photons, neutrons, and pions;Azimuth (Rads);Count");
 
   c->SetLogy();
 
   electronReco_azimuth1->SetLineColor(kBlue);
   photonReco_azimuth1->SetLineColor(kBlack);
-  neutronReco_azimuth1->SetLineColor(kCyan);
+  neutronReco_azimuth1->SetLineColor(kRed);
   pionReco_azimuth1->SetLineColor(kGreen);
 
-  electronReco_azimuth2->SetLineColor(kRed);
-  photonReco_azimuth2->SetLineColor(kYellow);
-  neutronReco_azimuth2->SetLineColor(kViolet);
-  pionReco_azimuth2->SetLineColor(kOrange);
+  electronReco_azimuth2->SetLineColor(kBlue);
+  photonReco_azimuth2->SetLineColor(kBlack);
+  neutronReco_azimuth2->SetLineColor(kRed);
+  pionReco_azimuth2->SetLineColor(kGreen);
+
+  electronReco_azimuth2->SetLineStyle(7);
+  photonReco_azimuth2->SetLineStyle(7);
+  neutronReco_azimuth2->SetLineStyle(7);
+  pionReco_azimuth2->SetLineStyle(7);
   
   hs->Add(electronReco_azimuth1);
   hs->Add(photonReco_azimuth1);
@@ -673,9 +824,77 @@ void filter_compare()
   hs->Draw("nostack");
 
   gPad->SetGrid(1, 0);
+  gPad->BuildLegend(0.35, 0.1, 0.65, 0.4, "");
+
+  c->SaveAs(saveDir + "/reconstructed-types/allPart_azimuth.png");
+  c->Close();
+  c = new TCanvas();
+
+  //draws the azimuth histograms for electrons on top of each other
+  hs = new THStack("hs", "Azimuth of electrons;Azimuth (Rads);Count");
+
+  c->SetLogy();
+
+  hs->Add(electronReco_azimuth1);
+  hs->Add(electronReco_azimuth2);
+
+  hs->Draw("nostack");
+
+  gPad->SetGrid(1, 0);
   gPad->BuildLegend(0.4, 0.1, 0.6, 0.3, "");
 
-  c->SaveAs(saveDir + "/allPart_azimuth.png");
+  c->SaveAs(saveDir + "/reconstructed-types/recoElectron_azimuth.png");
+  c->Close();
+  c = new TCanvas();
+
+  //draws the azimuth histograms for photons on top of each other
+  hs = new THStack("hs", "Azimuth of photons;Azimuth (Rads);Count");
+
+  c->SetLogy();
+
+  hs->Add(photonReco_azimuth1);
+  hs->Add(photonReco_azimuth2);
+
+  hs->Draw("nostack");
+
+  gPad->SetGrid(1, 0);
+  gPad->BuildLegend(0.4, 0.1, 0.6, 0.3, "");
+
+  c->SaveAs(saveDir + "/reconstructed-types/recoPhoton_azimuth.png");
+  c->Close();
+  c = new TCanvas();
+
+  //draws the azimuth histograms for neutrons on top of each other
+  hs = new THStack("hs", "Azimuth of neutrons;Azimuth (Rads);Count");
+
+  c->SetLogy();
+
+  hs->Add(neutronReco_azimuth1);
+  hs->Add(neutronReco_azimuth2);
+
+  hs->Draw("nostack");
+
+  gPad->SetGrid(1, 0);
+  gPad->BuildLegend(0.4, 0.1, 0.6, 0.3, "");
+
+  c->SaveAs(saveDir + "/reconstructed-types/recoNeutron_azimuth.png");
+  c->Close();
+  c = new TCanvas();
+
+  //draws the azimuth histograms for pions on top of each other
+  hs = new THStack("hs", "Azimuth of pions;Azimuth (Rads);Count");
+
+  c->SetLogy();
+
+  hs->Add(pionReco_azimuth1);
+  hs->Add(pionReco_azimuth2);
+
+  hs->Draw("nostack");
+
+  gPad->SetGrid(1, 0);
+  gPad->BuildLegend(0.4, 0.1, 0.6, 0.3, "");
+
+  c->SaveAs(saveDir + "/reconstructed-types/recoPion_azimuth.png");
   c->Close();
   c = new TCanvas();
 
@@ -689,8 +908,11 @@ void filter_compare()
   realAll_pt1->SetLineColor(kBlue);
   realPassed_pt1->SetLineColor(kBlack);
 
-  realAll_pt2->SetLineColor(kRed);
-  realPassed_pt2->SetLineColor(kOrange);
+  realAll_pt2->SetLineColor(kBlue);
+  realPassed_pt2->SetLineColor(kBlack);
+
+  realAll_pt2->SetLineStyle(7);
+  realPassed_pt2->SetLineStyle(7);
 
   hs->Add(realAll_pt1);
   hs->Add(realPassed_pt1);
@@ -701,7 +923,7 @@ void filter_compare()
   hs->Draw("nostack");
 
   gPad->SetGrid(1, 0);
-  gPad->BuildLegend(0.1, 0.1, 0.45, 0.3, "");
+  gPad->BuildLegend(0.6, 0.6, 0.9, 0.9, "");
   
   c->SaveAs(saveDir + "/compLink_pt.png");
   c->Close();
@@ -713,8 +935,11 @@ void filter_compare()
   realAll_PA1->SetLineColor(kBlue);
   realPassed_PA1->SetLineColor(kBlack);
 
-  realAll_PA2->SetLineColor(kRed);
-  realPassed_PA2->SetLineColor(kOrange);
+  realAll_PA2->SetLineColor(kBlue);
+  realPassed_PA2->SetLineColor(kBlack);
+
+  realAll_PA2->SetLineStyle(7);
+  realPassed_PA2->SetLineStyle(7);
 
   hs->Add(realAll_PA1);
   hs->Add(realPassed_PA1);
@@ -725,7 +950,7 @@ void filter_compare()
   hs->Draw("nostack");
 
   gPad->SetGrid(1, 0);
-  gPad->BuildLegend(0.1, 0.1, 0.3, 0.25, "");
+  gPad->BuildLegend(0.35, 0.1, 0.65, 0.4, "");
 
   c->SaveAs(saveDir + "/compLink_PA.png");
   c->Close();
@@ -737,8 +962,11 @@ void filter_compare()
   realAll_azimuth1->SetLineColor(kBlue);
   realPassed_azimuth1->SetLineColor(kBlack);
 
-  realAll_azimuth2->SetLineColor(kRed);
-  realPassed_azimuth2->SetLineColor(kOrange);
+  realAll_azimuth2->SetLineColor(kBlue);
+  realPassed_azimuth2->SetLineColor(kBlack);
+
+  realAll_azimuth2->SetLineStyle(7);
+  realPassed_azimuth2->SetLineStyle(7);
 
   hs->Add(realAll_azimuth1);
   hs->Add(realPassed_azimuth1);
@@ -749,7 +977,7 @@ void filter_compare()
   hs->Draw("nostack");
 
   gPad->SetGrid(1, 0);
-  gPad->BuildLegend(0.1, 0.1, 0.3, 0.25, "");
+  gPad->BuildLegend(0.35, 0.1, 0.65, 0.4, "");
 
   c->SaveAs(saveDir + "/compLink_azimuth.png");
   c->Close();
@@ -765,8 +993,11 @@ void filter_compare()
   realAll_pt1->SetLineColor(kBlue);
   realAllPassed_pt1->SetLineColor(kBlack);
 
-  realAll_pt2->SetLineColor(kRed);
-  realAllPassed_pt2->SetLineColor(kOrange);
+  realAll_pt2->SetLineColor(kBlue);
+  realAllPassed_pt2->SetLineColor(kBlack);
+
+  realAll_pt2->SetLineStyle(7);
+  realAllPassed_pt2->SetLineStyle(7);
 
   hs->Add(realAll_pt1);
   hs->Add(realAllPassed_pt1);
@@ -777,7 +1008,7 @@ void filter_compare()
   hs->Draw("nostack");
 
   gPad->SetGrid(1, 0);
-  gPad->BuildLegend(0.1, 0.1, 0.45, 0.3, "");
+  gPad->BuildLegend(0.1, 0.1, 0.4, 0.4, "");
 
   c->SaveAs(saveDir + "/compAllLink_pt.png");
   c->Close();
@@ -789,8 +1020,11 @@ void filter_compare()
   realAll_PA1->SetLineColor(kBlue);
   realAllPassed_PA1->SetLineColor(kBlack);
 
-  realAll_PA2->SetLineColor(kRed);
-  realAllPassed_PA2->SetLineColor(kOrange);
+  realAll_PA2->SetLineColor(kBlue);
+  realAllPassed_PA2->SetLineColor(kBlack);
+
+  realAll_PA2->SetLineStyle(7);
+  realAllPassed_PA2->SetLineStyle(7);
 
   hs->Add(realAll_PA1);
   hs->Add(realAllPassed_PA1);
@@ -801,7 +1035,7 @@ void filter_compare()
   hs->Draw("nostack");
 
   gPad->SetGrid(1, 0);
-  gPad->BuildLegend(0.1, 0.1, 0.3, 0.25, "");
+  gPad->BuildLegend(0.35, 0.1, 0.65, 0.4, "");
 
   c->SaveAs(saveDir + "/compAllLink_PA.png");
   c->Close();
@@ -813,8 +1047,11 @@ void filter_compare()
   realAll_azimuth1->SetLineColor(kBlue);
   realAllPassed_azimuth1->SetLineColor(kBlack);
 
-  realAll_azimuth2->SetLineColor(kRed);
-  realAllPassed_azimuth2->SetLineColor(kOrange);
+  realAll_azimuth2->SetLineColor(kBlue);
+  realAllPassed_azimuth2->SetLineColor(kBlack);
+
+  realAll_azimuth2->SetLineStyle(7);
+  realAllPassed_azimuth2->SetLineStyle(7);
 
   hs->Add(realAll_azimuth1);
   hs->Add(realAllPassed_azimuth1);
@@ -825,7 +1062,7 @@ void filter_compare()
   hs->Draw("nostack");
 
   gPad->SetGrid(1, 0);
-  gPad->BuildLegend(0.1, 0.1, 0.3, 0.25, "");
+  gPad->BuildLegend(0.35, 0.1, 0.65, 0.4, "");
 
   c->SaveAs(saveDir + "/compAllLink_azimuth.png");
   c->Close();
@@ -836,16 +1073,20 @@ void filter_compare()
   //=======================================//
 
   //draws the resolution of the transverse momentum of different linking methods
-  hs = new THStack("hs", "Resolution of different linking methods (no BIB);Transverse momentum (GeV);Count");
+  hs = new THStack("hs", "Relative resolution of different linking methods (no BIB);(Truth - reconstructed) / Truth transverse momentum;Count");
 
   relResOG_pt1->SetLineColor(kBlue);
-  relResEPSum_pt1->SetLineColor(kGreen);
+  relResEPSum_pt1->SetLineColor(kRed);
   relResBestMatch_pt1->SetLineColor(kBlack);
 
-  relResOG_pt2->SetLineColor(kRed);
-  relResEPSum_pt2->SetLineColor(kOrange);
-  relResBestMatch_pt2->SetLineColor(kYellow);
+  relResOG_pt2->SetLineColor(kBlue);
+  relResEPSum_pt2->SetLineColor(kRed);
+  relResBestMatch_pt2->SetLineColor(kBlack);
 
+  relResOG_pt2->SetLineStyle(7);
+  relResEPSum_pt2->SetLineStyle(7);
+  relResBestMatch_pt2->SetLineStyle(7);
+  
   hs->Add(relResOG_pt1);
   hs->Add(relResEPSum_pt1);
   hs->Add(relResBestMatch_pt1);
@@ -857,22 +1098,26 @@ void filter_compare()
   hs->Draw("nostack");
 
   gPad->SetGrid(1, 0);
-  gPad->BuildLegend(0.7, 0.7, 0.9, 0.9, "");
+  gPad->BuildLegend(0.6, 0.6, 0.9, 0.9, "");
 
   c->SaveAs(saveDir + "/resolution/compResLink_pt.png");
   c->Close();
   c = new TCanvas();
 
   //draws the resolution of the polar angle of different linking methods
-  hs = new THStack("hs", "Resolution of different linking methods (no BIB);Polar angle (GeV);Count");
+  hs = new THStack("hs", "Relative resolution of different linking methods (no BIB);(Truth - reconstructed) / Truth polar angle;Count");
 
   relResOG_PA1->SetLineColor(kBlue);
-  relResEPSum_PA1->SetLineColor(kGreen);
+  relResEPSum_PA1->SetLineColor(kRed);
   relResBestMatch_PA1->SetLineColor(kBlack);
 
-  relResOG_PA2->SetLineColor(kRed);
-  relResEPSum_PA2->SetLineColor(kOrange);
-  relResBestMatch_PA2->SetLineColor(kYellow);
+  relResOG_PA2->SetLineColor(kBlue);
+  relResEPSum_PA2->SetLineColor(kRed);
+  relResBestMatch_PA2->SetLineColor(kBlack);
+
+  relResOG_PA2->SetLineStyle(7);
+  relResEPSum_PA2->SetLineStyle(7);
+  relResBestMatch_PA2->SetLineStyle(7);
 
   hs->Add(relResOG_PA1);
   hs->Add(relResEPSum_PA1);
@@ -885,22 +1130,26 @@ void filter_compare()
   hs->Draw("nostack");
 
   gPad->SetGrid(1, 0);
-  gPad->BuildLegend(0.7, 0.7, 0.9, 0.9, "");
+  gPad->BuildLegend(0.6, 0.6, 0.9, 0.9, "");
 
   c->SaveAs(saveDir + "/resolution/compResLink_PA.png");
   c->Close();
   c = new TCanvas();
 
   //draws the resolution of the azimuth of different linking methods
-  hs = new THStack("hs", "Resolution of different linking methods (no BIB);Azimuth (GeV);Count");
+  hs = new THStack("hs", "Relative resolution of different linking methods (no BIB);(Truth - reconstructed) / Truth azimuth;Count");
 
   relResOG_azimuth1->SetLineColor(kBlue);
-  relResEPSum_azimuth1->SetLineColor(kGreen);
+  relResEPSum_azimuth1->SetLineColor(kRed);
   relResBestMatch_azimuth1->SetLineColor(kBlack);
 
-  relResOG_azimuth2->SetLineColor(kRed);
-  relResEPSum_azimuth2->SetLineColor(kOrange);
-  relResBestMatch_azimuth2->SetLineColor(kYellow);
+  relResOG_azimuth2->SetLineColor(kBlue);
+  relResEPSum_azimuth2->SetLineColor(kRed);
+  relResBestMatch_azimuth2->SetLineColor(kBlack);
+
+  relResOG_azimuth2->SetLineStyle(7);
+  relResEPSum_azimuth2->SetLineStyle(7);
+  relResBestMatch_azimuth2->SetLineStyle(7);
 
   hs->Add(relResOG_azimuth1);
   hs->Add(relResEPSum_azimuth1);
@@ -913,7 +1162,7 @@ void filter_compare()
   hs->Draw("nostack");
 
   gPad->SetGrid(1, 0);
-  gPad->BuildLegend(0.7, 0.7, 0.9, 0.9, "");
+  gPad->BuildLegend(0.6, 0.6, 0.9, 0.9, "");
 
   c->SaveAs(saveDir + "/resolution/compResLink_azimuth.png");
   c->Close();
@@ -935,7 +1184,7 @@ void filter_compare()
   hs->Draw("nostack");
 
   gPad->SetGrid(1, 0);
-  gPad->BuildLegend(0.7, 0.7, 0.9, 0.9, "");
+  gPad->BuildLegend(0.1, 0.7, 0.4, 0.9, "");
   
   c->SaveAs(saveDir + "/weight/recoLinkElWeights.png");
   c->Close();
@@ -953,7 +1202,7 @@ void filter_compare()
   hs->Draw("nostack");
 
   gPad->SetGrid(1, 0);
-  gPad->BuildLegend(0.7, 0.7, 0.9, 0.9, "");
+  gPad->BuildLegend(0.1, 0.7, 0.4, 0.9, "");
 
   c->SaveAs(saveDir + "/weight/recoLinkBMWeights.png");
   c->Close();
@@ -964,7 +1213,7 @@ void filter_compare()
   //============================//
 
   //draws a hist that hold the differences in electron pt
-  hs = new THStack("hs", "Difference in pt between all and reconstructed particles;Transverse momentum (GeV);Count");
+  hs = new THStack("hs", "Relative resolution in pt between all and reconstructed particles;(Truth - reconstructed) / Truth transverse momentum;Count");
 
   relResOG_pt1->SetLineColor(kBlue);
   relResOG_pt2->SetLineColor(kBlack);
@@ -972,17 +1221,19 @@ void filter_compare()
   hs->Add(relResOG_pt1);
   hs->Add(relResOG_pt2);
 
+  relResOG_pt2->SetLineStyle(1);
+
   hs->Draw("nostack");
 
   gPad->SetGrid(1, 0);
-  gPad->BuildLegend(0.7, 0.7, 0.9, 0.9, "");
+  gPad->BuildLegend(0.6, 0.7, 0.9, 0.9, "");
 
   c->SaveAs(saveDir + "/resolution/recoPt_diff.png");
   c->Close();
   c = new TCanvas();
 
   //draws a hist that hold the differences in electron polar angle
-  hs = new THStack("hs", "Difference in polar angle between all and reconstructed particles;Polar angle (Rads);Count");
+  hs = new THStack("hs", "Relative resolution in polar angle between all and reconstructed particles;(Truth - reconstructed) / Truth polar angle;Count");
 
   relResOG_PA1->SetLineColor(kBlue);
   relResOG_PA2->SetLineColor(kBlack);
@@ -990,17 +1241,19 @@ void filter_compare()
   hs->Add(relResOG_PA1);
   hs->Add(relResOG_PA2);
 
+  relResOG_PA2->SetLineStyle(1);
+
   hs->Draw("nostack");
 
   gPad->SetGrid(1, 0);
-  gPad->BuildLegend(0.7, 0.7, 0.9, 0.9, "");
+  gPad->BuildLegend(0.6, 0.7, 0.9, 0.9, "");
 
   c->SaveAs(saveDir + "/resolution/recoPA_diff.png");
   c->Close();
   c = new TCanvas();
   
   //draws a hist that hold the differences in electron azimuth
-  hs = new THStack("hs", "Difference in pt between all and reconstructed particles;Azimuth (Rads);Count");
+  hs = new THStack("hs", "Relative resolution in pt between all and reconstructed particles;(Truth - reconstructed) / Truth azimuth;Count");
 
   relResOG_azimuth1->SetLineColor(kBlue);
   relResOG_azimuth2->SetLineColor(kBlack);
@@ -1008,10 +1261,12 @@ void filter_compare()
   hs->Add(relResOG_azimuth1);
   hs->Add(relResOG_azimuth2);
 
+  relResOG_azimuth2->SetLineStyle(1);
+
   hs->Draw("nostack");
 
   gPad->SetGrid(1, 0);
-  gPad->BuildLegend(0.7, 0.7, 0.9, 0.9, "");
+  gPad->BuildLegend(0.6, 0.7, 0.9, 0.9, "");
 
   c->SaveAs(saveDir + "/resolution/recoAzimuth_diff.png");
   c->Close();
@@ -1022,7 +1277,7 @@ void filter_compare()
   //=============================================//
 
   //draws a hist that hold the electron and photon sum pt resolution
-  hs = new THStack("hs", "All truth particle and sum of electrons and photons pt resolution;Truth - reconstructed p_{T} (GeV);Count");
+  hs = new THStack("hs", "All truth particle and sum of electrons and photons pt relative resolution;(Truth - reconstructed) / Truth p_{T};Count");
 
   relResEPSum_pt1->SetLineColor(kBlue);
   relResEPSum_pt2->SetLineColor(kBlack);
@@ -1030,17 +1285,19 @@ void filter_compare()
   hs->Add(relResEPSum_pt1);
   hs->Add(relResEPSum_pt2);
 
+  relResEPSum_pt2->SetLineStyle(1);
+
   hs->Draw("nostack");
 
   gPad->SetGrid(1, 0);
-  gPad->BuildLegend(0.7, 0.7, 0.9, 0.9, "");
+  gPad->BuildLegend(0.6, 0.7, 0.9, 0.9, "");
 
   c->SaveAs(saveDir + "/resolution/relResEPSumLink_pt.png");
   c->Close();
   c = new TCanvas();
   
   //draws a hist that hold the electron and photon sum polar angle resolution
-  hs = new THStack("hs", "All truth particle and sum of electrons and photons polar angle resolution;Truth - reconstructed polar angle (Rads);Count");
+  hs = new THStack("hs", "All truth particle and sum of electrons and photons polar angle relative resolution;(Truth - reconstructed) / Truth polar angle;Count");
 
   relResEPSum_PA1->SetLineColor(kBlue);
   relResEPSum_PA2->SetLineColor(kBlack);
@@ -1048,17 +1305,19 @@ void filter_compare()
   hs->Add(relResEPSum_PA1);
   hs->Add(relResEPSum_PA2);
 
+  relResEPSum_PA2->SetLineStyle(1);
+
   hs->Draw("nostack");
 
   gPad->SetGrid(1, 0);
-  gPad->BuildLegend(0.7, 0.7, 0.9, 0.9, "");
+  gPad->BuildLegend(0.6, 0.7, 0.9, 0.9, "");
 
   c->SaveAs(saveDir + "/resolution/relResEPSumLink_PA.png");
   c->Close();
   c = new TCanvas();
   
   //draws a hist that hold the electron and photon sum azimuth resolution
-  hs = new THStack("hs", "All truth particle and sum of electrons and photons azimuth resolution;Truth - reconstructed azimuth (Rads);Count");
+  hs = new THStack("hs", "All truth particle and sum of electrons and photons azimuth relative resolution;(Truth - reconstructed) / Truth azimuth;Count");
 
   relResEPSum_azimuth1->SetLineColor(kBlue);
   relResEPSum_azimuth2->SetLineColor(kBlack);
@@ -1066,10 +1325,12 @@ void filter_compare()
   hs->Add(relResEPSum_azimuth1);
   hs->Add(relResEPSum_azimuth2);
 
+  relResEPSum_azimuth1->SetLineStyle(1);
+
   hs->Draw("nostack");
 
   gPad->SetGrid(1, 0);
-  gPad->BuildLegend(0.7, 0.7, 0.9, 0.9, "");
+  gPad->BuildLegend(0.6, 0.7, 0.9, 0.9, "");
 
   c->SaveAs(saveDir + "/resolution/relResEPSumLink_azimuth.png");
   c->Close();
@@ -1080,7 +1341,7 @@ void filter_compare()
   //==========================//
 
   //draws a hist that hold the truth particle and the best match link regardless of reco type pt resolution
-  hs = new THStack("hs", "Truth and best match link pt resolution;Truth - reconstructed p_{T} (GeV);Count");
+  hs = new THStack("hs", "Truth and best match link pt relative resolution;(Truth - reconstructed) / Truth p_{T};Count");
 
   relResBestMatch_pt1->SetLineColor(kBlue);
   relResBestMatch_pt2->SetLineColor(kBlack);
@@ -1088,17 +1349,19 @@ void filter_compare()
   hs->Add(relResBestMatch_pt1);
   hs->Add(relResBestMatch_pt2);
 
+  relResBestMatch_pt2->SetLineStyle(1); 
+
   hs->Draw("nostack");
 
   gPad->SetGrid(1, 0);
-  gPad->BuildLegend(0.7, 0.7, 0.9, 0.9, "");
+  gPad->BuildLegend(0.6, 0.7, 0.9, 0.9, "");
 
   c->SaveAs(saveDir + "/resolution/relResBestMatchLink_pt.png");
   c->Close();
   c = new TCanvas();
 
   //draws a hist that hold the truth particle and the best match link regardless of reco type polar angle resolution
-  hs = new THStack("hs", "Truth and best match link polar angle resolution;Truth - reconstructed polar angle (Rads);Count");
+  hs = new THStack("hs", "Truth and best match link polar angle relative resolution;(Truth - reconstructed) / Truth polar angle;Count");
 
   relResBestMatch_PA1->SetLineColor(kBlue);
   relResBestMatch_PA2->SetLineColor(kBlack);
@@ -1106,17 +1369,19 @@ void filter_compare()
   hs->Add(relResBestMatch_PA1);
   hs->Add(relResBestMatch_PA2);
 
+  relResBestMatch_PA2->SetLineStyle(1);
+
   hs->Draw("nostack");
 
   gPad->SetGrid(1, 0);
-  gPad->BuildLegend(0.7, 0.7, 0.9, 0.9, "");
+  gPad->BuildLegend(0.6, 0.7, 0.9, 0.9, "");
 
   c->SaveAs(saveDir + "/resolution/relResBestMatchLink_PA.png");
   c->Close();
   c = new TCanvas();
   
   //draws a hist that hold the truth particle and the best match link regardless of reco type azimuth resolution
-  hs = new THStack("hs", "Truth and best match link azimuth resolution;Truth - reconstructed azimuth (GeV);Count");
+  hs = new THStack("hs", "Truth and best match link azimuth relative resolution;(Truth - reconstructed) / Truth azimuth;Count");
 
   relResBestMatch_azimuth1->SetLineColor(kBlue);
   relResBestMatch_azimuth2->SetLineColor(kBlack);
@@ -1124,10 +1389,12 @@ void filter_compare()
   hs->Add(relResBestMatch_azimuth1);
   hs->Add(relResBestMatch_azimuth2);
 
+  relResBestMatch_azimuth2->SetLineStyle(1);
+
   hs->Draw("nostack");
 
   gPad->SetGrid(1, 0);
-  gPad->BuildLegend(0.7, 0.7, 0.9, 0.9, "");
+  gPad->BuildLegend(0.6, 0.7, 0.9, 0.9, "");
 
   c->SaveAs(saveDir + "/resolution/relResBestMatchLink_azimuth.png");
   c->Close();
@@ -1138,7 +1405,7 @@ void filter_compare()
   //=============================================//
 
   //draws a hist that hold the truth particle and the best match link pt resolution for photons
-  hs = new THStack("hs", "Truth and best match link pt resolution for photons;Truth - reconstructed p_{T} (GeV);Count");
+  hs = new THStack("hs", "Truth and best match link pt relative resolution for photons;(Truth - reconstructed) / Truth p_{T};Count");
 
   relResPhotonReco_pt1->SetLineColor(kBlue);
   relResPhotonReco_pt2->SetLineColor(kBlack);
@@ -1146,17 +1413,19 @@ void filter_compare()
   hs->Add(relResPhotonReco_pt1);
   hs->Add(relResPhotonReco_pt2);
 
+  relResPhotonReco_pt2->SetLineStyle(1);
+
   hs->Draw("nostack");
 
   gPad->SetGrid(1, 0);
-  gPad->BuildLegend(0.7, 0.7, 0.9, 0.9, "");
+  gPad->BuildLegend(0.6, 0.7, 0.9, 0.9, "");
 
   c->SaveAs(saveDir + "/resolution/resBMPhotonLink_pt.png");
   c->Close();
   c = new TCanvas();
 
   //draws a hist that hold the truth particle and the best match link polar angle resolution for photons
-  hs = new THStack("hs", "Truth and best match link polar angle resolution for photons;Truth - reconstructed polar angle (Rads);Count");
+  hs = new THStack("hs", "Truth and best match link polar angle relative resolution for photons;(Truth - reconstructed) / Truth polar angle;Count");
 
   relResPhotonReco_PA1->SetLineColor(kBlue);
   relResPhotonReco_PA2->SetLineColor(kBlack);
@@ -1164,17 +1433,19 @@ void filter_compare()
   hs->Add(relResPhotonReco_PA1);
   hs->Add(relResPhotonReco_PA2);
 
+  relResPhotonReco_PA2->SetLineStyle(1);
+
   hs->Draw("nostack");
 
   gPad->SetGrid(1, 0);
-  gPad->BuildLegend(0.7, 0.7, 0.9, 0.9, "");
+  gPad->BuildLegend(0.6, 0.7, 0.9, 0.9, "");
 
   c->SaveAs(saveDir + "/resolution/resBMPhotonLink_PA.png");
   c->Close();
   c = new TCanvas();
 
   //draws a hist that hold the truth particle and the best match link azimuth resolution for photons
-  hs = new THStack("hs", "Truth and best match link azimuth resolution for photons;Truth - reconstructed azimuth (Rads);Count");
+  hs = new THStack("hs", "Truth and best match link azimuth relative resolution for photons;(Truth - reconstructed) / Truth azimuth;Count");
 
   relResPhotonReco_azimuth1->SetLineColor(kBlue);
   relResPhotonReco_azimuth2->SetLineColor(kBlack);
@@ -1182,10 +1453,12 @@ void filter_compare()
   hs->Add(relResPhotonReco_azimuth1);
   hs->Add(relResPhotonReco_azimuth2);
 
+  relResPhotonReco_azimuth2->SetLineStyle(1);
+
   hs->Draw("nostack");
 
   gPad->SetGrid(1, 0);
-  gPad->BuildLegend(0.7, 0.7, 0.9, 0.9, "");
+  gPad->BuildLegend(0.6, 0.7, 0.9, 0.9, "");
 
   c->SaveAs(saveDir + "/resolution/resBMPhotonLink_azimuth.png");
   c->Close();
@@ -1196,7 +1469,7 @@ void filter_compare()
   //======================================================//
 
   //draws a hist that hold the truth particle and the best match photon track link pt  resolution
-  hs = new THStack("hs", "Truth and best match link photon track transverse momentum resolution;Truth - reconstructed p_{T} (GeV);Count");
+  hs = new THStack("hs", "Truth and best match link photon track transverse momentum relative resolution;(Truth - reconstructed) / Truth p_{T};Count");
 
   relResTrackLink_pt1->SetLineColor(kBlue);
   relResTrackLink_pt2->SetLineColor(kBlack);
@@ -1204,10 +1477,12 @@ void filter_compare()
   hs->Add(relResTrackLink_pt1);
   hs->Add(relResTrackLink_pt2);
 
+  relResTrackLink_pt2->SetLineStyle(1);
+
   hs->Draw("nostack");
 
   gPad->SetGrid(1, 0);
-  gPad->BuildLegend(0.7, 0.7, 0.9, 0.9, "");
+  gPad->BuildLegend(0.1, 0.7, 0.4, 0.9, "");
 
   c->SaveAs(saveDir + "/resolution/relResTrackLink_pt.png");
   c->Close();
@@ -1354,7 +1629,7 @@ void filter_compare()
     eff_File->Write();
   }
 
-  //setting new line colors so the plots are differentable when put on the same graph
+  //setting new line colors and styles so the plots are differentable when put on the same graph
   pt_Eff1->SetLineColor(4);
   PA_Eff1->SetLineColor(4);
   azimuth_Eff1->SetLineColor(4);
@@ -1363,13 +1638,21 @@ void filter_compare()
   PAAll_Eff1->SetLineColor(2);
   azimuthAll_Eff1->SetLineColor(2);
 
-  pt_Eff2->SetLineColor(6);
-  PA_Eff2->SetLineColor(6);
-  azimuth_Eff2->SetLineColor(6);
+  pt_Eff2->SetLineColor(4);
+  PA_Eff2->SetLineColor(4);
+  azimuth_Eff2->SetLineColor(4);
 
-  ptAll_Eff2->SetLineColor(7);
-  PAAll_Eff2->SetLineColor(7);
-  azimuthAll_Eff2->SetLineColor(7);
+  ptAll_Eff2->SetLineColor(2);
+  PAAll_Eff2->SetLineColor(2);
+  azimuthAll_Eff2->SetLineColor(2);
+
+  pt_Eff2->SetLineStyle(7);
+  PA_Eff2->SetLineStyle(7);
+  azimuth_Eff2->SetLineStyle(7);
+
+  ptAll_Eff2->SetLineStyle(7);
+  PAAll_Eff2->SetLineStyle(7);
+  azimuthAll_Eff2->SetLineStyle(7);
 
   pt_Eff1->SetTitle(filePrefix1 + ":Just electrons");
   PA_Eff1->SetTitle(filePrefix1 + ":Just electrons");
@@ -1404,7 +1687,7 @@ void filter_compare()
   mg->Draw("aZ");
 
   gPad->SetGrid(1, 0);
-  gPad->BuildLegend(0.1, 0.1, 0.3, 0.25, "");
+  gPad->BuildLegend(0.65, 0.3, 0.95, 0.6, "");
 
   c->SaveAs(saveDir + "/efficiency/multiBMEff_pt.png");
   c->Close();
@@ -1426,7 +1709,7 @@ void filter_compare()
   mg->Draw("aZ");
 
   gPad->SetGrid(1, 0);
-  gPad->BuildLegend(0.1, 0.1, 0.3, 0.25, "");
+  gPad->BuildLegend(0.35, 0.1, 0.65, 0.4, "");
 
   c->SaveAs(saveDir + "/efficiency/multiBMEff_PA.png");
   c->Close();
@@ -1448,9 +1731,9 @@ void filter_compare()
   mg->Draw("aZ");
 
   gPad->SetGrid(1, 0);
-  gPad->BuildLegend(0.1, 0.1, 0.3, 0.25, "");
+  gPad->BuildLegend(0.35, 0.1, 0.65, 0.4, "");
 
-  c->SaveAs(saveDir + "/efficiency/multiBMEff_azimuth1.png");
+  c->SaveAs(saveDir + "/efficiency/multiBMEff_azimuth.png");
   c->Close();
 
 }
