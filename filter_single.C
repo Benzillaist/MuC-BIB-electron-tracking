@@ -4,10 +4,10 @@ void filter_single()
   //GENERAL ANALYSIS SETTINGS//
   /////////////////////////////
   
-  auto fileName = "10k-ACTS.root";
+  auto fileName = "10k-ACTS-redo.root";
   auto treeName = "MyLCTuple";
 
-  TString saveDir = "10k-ACTS";
+  TString saveDir = "10k-ACTS-redo";
 
   /////////////////////////////
 
@@ -31,16 +31,19 @@ void filter_single()
   TH1F *realEPSum_pt = new TH1F("EPS_pt", "Summed particles", 20, 0, 2000); //summed transverse momentum from linked electrons and photons
   TH1F *recoTrackLink_pt = new TH1F("recTck_pt", "Reco track", 40, -2000, 2000); //transverse momentum from individual track reconstruction segments
   TH1F *realAll_pt = new TH1F("rA_pt", "All electrons", 20, 0, 2000); //transverse momentum of the truth particles
+  TH1F *realPion_pt = new TH1F("rPi_pt", "Only pions", 20, 0, 2000); //transverse momentum of linked pions
   //Polar angle
   TH1F *realPassed_PA = new TH1F("rP_PA", "Linked electrons", 20, 0, 3.2); //see above
   TH1F *realAllPassed_PA = new TH1F("AP_PA", "Best match", 20, 0, 3.2);
   TH1F *realEPSum_PA = new TH1F("EPS_PA", "Summed particles", 20, 0, 3.2);
   TH1F *realAll_PA = new TH1F("rA_PA", "All electrons", 20, 0, 3.2);
+  TH1F *realPion_PA = new TH1F("rPi_PA", "Only pions", 20, 0, 3.2);
   //Azimuth
   TH1F *realPassed_azimuth = new TH1F("rP_a", "Linked electrons", 20, -3.2, 3.2); //see above
   TH1F *realAllPassed_azimuth = new TH1F("AP_a", "Best match", 20, -3.2, 3.2);
   TH1F *realEPSum_azimuth = new TH1F("EPS_a", "Summed particles", 20, -3.2, 3.2);
   TH1F *realAll_azimuth = new TH1F("rA_a", "All electrons", 20, -3.2, 3.2);
+  TH1F *realPion_azimuth = new TH1F("rPi_a", "Only pions", 20, -3.2, 3.2);
 
   //histograms for weights of particles
   TH1D *realElWeights_Hist = new TH1D("realElWeights", "Reco link electron weights", 26, 0, 1.3); //link weights of reconstructed electrons linked to truth electrons
@@ -60,6 +63,9 @@ void filter_single()
   TH1F *resPhotonReco_pt = new TH1F("rPR_pt", "Best match photon link", 40, -2000, 2000); //resolution of transverse momentum reconstruction when the reconstructed particle is the best photon match
   TH1F *resPhotonReco_PA = new TH1F("rPR_PA", "Best match photon link", 20, -3.2, 3.2); //resolution of transverse momentum reconstruction when the reconstructed particle is the best photon match
   TH1F *resPhotonReco_azimuth = new TH1F("rPR_A", "Best match photon link", 20, -3.2, 3.2); //resolution of transverse momentum reconstruction when the reconstructed particle is the best photon match
+  TH1F *resPionReco_pt = new TH1F("rPiR_pt", "Best match pion link", 40, -2000, 2000); //resolution of transverse momentum reconstruction when the reconstructed particle is the best photon match
+  TH1F *resPionReco_PA = new TH1F("rPiR_PA", "Best match pion link", 20, -3.2, 3.2); //resolution of transverse momentum reconstruction when the reconstructed particle is the best photon match
+  TH1F *resPionReco_azimuth = new TH1F("rPiR_A", "Best match pion link", 20, -3.2, 3.2); //resolution of transverse momentum reconstruction when the reconstructed particle is the best photon match
   TH1F *resTrackLink_pt = new TH1F("rTck_pt", "Reco track", 40, -2000, 2000); //transverse momentum from individual track reconstruction segments
 
   //histograms for storing relative differences between values
@@ -106,8 +112,9 @@ void filter_single()
 
   //temporary variables that will reduce the number of get operatons
   int r2fTemp, r2tTemp;
-  bool photonMatch = false;
   bool electronMatch = false;
+  bool photonMatch = false;
+  bool pionMatch = false;
   Float_t r2wTemp, dPATemp, dATemp;
   TVector3 mcmoTemp, rcmoTemp, rcmoSumTemp, BMTemp, BMPTemp;
   Float_t r2wMax = 0;
@@ -145,7 +152,7 @@ void filter_single()
       rcmoTemp.SetXYZ(rcmox_RA.At(i), rcmoy_RA.At(i), rcmoz_RA.At(i));
 
       //if that particle is an electron or photon, add it the sum variables (this accounts for particle mis-identification)
-      if(abs(rctyp_RA.At(i)) == 11 || abs(rctyp_RA.At(i)) == 22) {
+      if(abs(rctyp_RA.At(i)) == 11 || abs(rctyp_RA.At(i)) == 22 || abs(rctyp_RA.At(i)) == 211) {
 	for(int j = 0; j < r2f_RA.GetSize(); j++) {
 	  if(r2f_RA.At(j) == i && mcgst_RA.At(r2t_RA.At(j))) {
 	    rcmoSumTemp.SetXYZ(rcmoSumTemp.X() + rcmoTemp.X(), rcmoSumTemp.Y() + rcmoTemp.Y(), rcmoSumTemp.Z() + rcmoTemp.Z());
@@ -240,18 +247,24 @@ void filter_single()
 	r2wTemp = r2w_RA.At(i);
 
 	//checks to see if the truth particle is an electron, if the reconstructed particle is a photon, and if the truth particle is an originial generating particle
-	if(abs(mcpdg_RA.At(r2tTemp)) == 11 && abs(rctyp_RA.At(r2fTemp)) == 22 && mcgst_RA.At(r2tTemp)) {
+	if(abs(mcpdg_RA.At(r2tTemp)) == 11 && (abs(rctyp_RA.At(r2fTemp)) == 22 || abs(rctyp_RA.At(r2fTemp)) == 211) && mcgst_RA.At(r2tTemp)) {
 	  if(r2wTemp > r2wMax) {
 	    r2wMax = r2wTemp;
 	    r2wMax_Index = i;
-	    photonMatch = true;
 	  }
+	}
+      }
+      if(r2wMax_Index != -1) {	
+	if(rctyp_RA.At(r2wMax_Index) == 22) {
+	  photonMatch = true;
+	} else if(rctyp_RA.At(r2wMax_Index) == 211) {
+	  pionMatch = true;
 	}
       }
     }
 
     //repeats the previous steps that adds data to histograms but instead adds it to the histograms that holds links between photons and electrons as well
-    if(photonMatch || electronMatch) {
+    if(photonMatch || electronMatch || pionMatch) {
       r2tTemp = r2t_RA.At(r2wMax_Index);
       r2fTemp = r2f_RA.At(r2wMax_Index);
       r2wTemp = r2w_RA.At(r2wMax_Index);
@@ -280,13 +293,19 @@ void filter_single()
 	  resTrackLink_pt->Fill(mcmoTemp.Perp() - abs(((0.3 * 3.57) / tsome_RA.At(0)) / 1000));
 	}
       }
+      if(pionMatch) {
+	resPionReco_pt->Fill(mcmoTemp.Perp() - rcmoTemp.Perp());
+	resPionReco_PA->Fill(mcmoTemp.Theta() - rcmoTemp.Theta());
+	resPionReco_azimuth->Fill(mcmoTemp.Phi() - rcmoTemp.Phi());
+      }
     }
     
     count++;
     r2wMax = 0;
     r2wMax_Index = -1;
-    photonMatch = false;
     electronMatch = false;
+    photonMatch = false;
+    pionMatch = false;
 
     //finds the difference between the truth and reconstructed particles (sum of photons and electrons)
     if(rcmoSumTemp.X() != 0 || rcmoSumTemp.Y() != 0 || rcmoSumTemp.Z() != 0){
@@ -737,6 +756,40 @@ void filter_single()
   resPhotonReco_azimuth->GetYaxis()->SetTitle("Count");
 
   c->SaveAs(saveDir + "/resolution/resBMPhotonLink_azimuth.png");
+  c->Close();
+  c = new TCanvas();
+
+  //=============================================//
+  //Best match resolution data for pion matches//
+  //=============================================//
+
+  //draws a hist that hold the truth particle and the best match link pt resolution for pions
+  resPionReco_pt->Draw();
+  resPionReco_pt->SetTitle("Truth and best match link pt resolution for pions");
+  resPionReco_pt->GetXaxis()->SetTitle("Truth - reconstructed p_{T} (GeV)");
+  resPionReco_pt->GetYaxis()->SetTitle("Count");
+
+  c->SaveAs(saveDir + "/resolution/resBMPionLink_pt.png");
+  c->Close();
+  c = new TCanvas();
+
+  //draws a hist that hold the truth particle and the best match link polar angle resolution for pions
+  resPionReco_PA->Draw();
+  resPionReco_PA->SetTitle("Truth and best match link polar angle resolution for pions");
+  resPionReco_PA->GetXaxis()->SetTitle("Truth - reconstructed polar angle (Rads)");
+  resPionReco_PA->GetYaxis()->SetTitle("Count");
+
+  c->SaveAs(saveDir + "/resolution/resBMPionLinkLink_PA.png");
+  c->Close();
+  c = new TCanvas();
+
+  //draws a hist that hold the truth particle and the best match link azimuth resolution for pions
+  resPionReco_azimuth->Draw();
+  resPionReco_azimuth->SetTitle("Truth and best match link azimuth resolution for pions");
+  resPionReco_azimuth->GetXaxis()->SetTitle("Truth - reconstructed azimuth (Rads)");
+  resPionReco_azimuth->GetYaxis()->SetTitle("Count");
+
+  c->SaveAs(saveDir + "/resolution/resBMPionLink_azimuth.png");
   c->Close();
   c = new TCanvas();
   
