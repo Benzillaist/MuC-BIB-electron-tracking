@@ -4,15 +4,15 @@ void filter_compare()
   //GENERAL ANALYSIS SETTINGS//
   /////////////////////////////
   
-  auto fileName1 = "10k-ACTS.root";
+  auto fileName1 = "10k-ACTS-redo.root";
   auto treeName1 = "MyLCTuple";
   TString filePrefix1 = "ACTS";
 
-  auto fileName2 = "10k-Conf.root";
+  auto fileName2 = "10k-Conf-redo.root";
   auto treeName2 = "MyLCTuple";
   TString filePrefix2 = "Conformal";
 
-  TString saveDir = "10k-ACTS-Conf-Compare-pions";
+  TString saveDir = "10k-Compare-pions-redo";
 
   /////////////////////////////
 
@@ -704,8 +704,6 @@ void filter_compare()
   //draws the pt histograms for pions on top of each other
   hs = new THStack("hs", "Transverse momenta of pions;Transverse momentum (GeV);Count");
 
-  c->SetLogy();
-
   hs->Add(pionReco_pt1);
   hs->Add(pionReco_pt2);
 
@@ -811,15 +809,13 @@ void filter_compare()
   //draws the polar angle histograms for pions on top of each other
   hs = new THStack("hs", "Polar angle of pions;Polar angle (Rads);Count");
 
-  c->SetLogy();
-
   hs->Add(pionReco_PA1);
   hs->Add(pionReco_PA2);
 
   hs->Draw("nostack");
 
   gPad->SetGrid(1, 0);
-  gPad->BuildLegend(0.4, 0.1, 0.6, 0.3, "");
+  gPad->BuildLegend(0.4, 0.7, 0.6, 0.9, "");
 
   c->SaveAs(saveDir + "/reconstructed-types/recoPion_PA.png");
   c->Close();
@@ -917,8 +913,6 @@ void filter_compare()
 
   //draws the azimuth histograms for pions on top of each other
   hs = new THStack("hs", "Azimuth of pions;Azimuth (Rads);Count");
-
-  c->SetLogy();
 
   hs->Add(pionReco_azimuth1);
   hs->Add(pionReco_azimuth2);
