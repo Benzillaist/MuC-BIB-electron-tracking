@@ -4,10 +4,10 @@ void filter_single()
   //GENERAL ANALYSIS SETTINGS//
   /////////////////////////////
   
-  auto fileName = "10k-ACTS-redo.root";
+  auto fileName = "10k-Conf-redo.root";
   auto treeName = "MyLCTuple";
 
-  TString saveDir = "10k-ACTS-redo";
+  TString saveDir = "10k-Conf-redo";
 
   /////////////////////////////
 
@@ -31,23 +31,28 @@ void filter_single()
   TH1F *realEPSum_pt = new TH1F("EPS_pt", "Summed particles", 20, 0, 2000); //summed transverse momentum from linked electrons and photons
   TH1F *recoTrackLink_pt = new TH1F("recTck_pt", "Reco track", 40, -2000, 2000); //transverse momentum from individual track reconstruction segments
   TH1F *realAll_pt = new TH1F("rA_pt", "All electrons", 20, 0, 2000); //transverse momentum of the truth particles
+  TH1F *realPhoton_pt = new TH1F("rPh_pt", "Only photons", 20, 0, 2000); //transverse momentum of linked photons
   TH1F *realPion_pt = new TH1F("rPi_pt", "Only pions", 20, 0, 2000); //transverse momentum of linked pions
+  
   //Polar angle
   TH1F *realPassed_PA = new TH1F("rP_PA", "Linked electrons", 20, 0, 3.2); //see above
   TH1F *realAllPassed_PA = new TH1F("AP_PA", "Best match", 20, 0, 3.2);
   TH1F *realEPSum_PA = new TH1F("EPS_PA", "Summed particles", 20, 0, 3.2);
   TH1F *realAll_PA = new TH1F("rA_PA", "All electrons", 20, 0, 3.2);
+  TH1F *realPhoton_PA = new TH1F("rPh_PA", "Only photons", 20, 0, 3.2);
   TH1F *realPion_PA = new TH1F("rPi_PA", "Only pions", 20, 0, 3.2);
   //Azimuth
   TH1F *realPassed_azimuth = new TH1F("rP_a", "Linked electrons", 20, -3.2, 3.2); //see above
   TH1F *realAllPassed_azimuth = new TH1F("AP_a", "Best match", 20, -3.2, 3.2);
   TH1F *realEPSum_azimuth = new TH1F("EPS_a", "Summed particles", 20, -3.2, 3.2);
   TH1F *realAll_azimuth = new TH1F("rA_a", "All electrons", 20, -3.2, 3.2);
+  TH1F *realPhoton_azimuth = new TH1F("rPh_a", "Only photons", 20, -3.2, 3.2);
   TH1F *realPion_azimuth = new TH1F("rPi_a", "Only pions", 20, -3.2, 3.2);
 
   //histograms for weights of particles
   TH1D *realElWeights_Hist = new TH1D("realElWeights", "Reco link electron weights", 26, 0, 1.3); //link weights of reconstructed electrons linked to truth electrons
   TH1D *realAllWeights_Hist = new TH1D("realAllWeights", "Reco link all weights", 26, 0, 1.3); // link weights of particles linked to truth electrons
+  TH1D *realPhWeights_Hist = new TH1D("realPhWeights", "Reco link all weights", 26, 0, 1.3); // link weights of photons linked to truth electrons
 
   //histograms for storing differences between values
   TH1F *diffPt_Hist = new TH1F("diffPt", "Simple electron linking", 40, -2000, 2000); //difference between reconstructed linked particles and the truth particles in transverse momentum
@@ -91,6 +96,9 @@ void filter_single()
   TH1F *photonReco_azimuth = new TH1F("phRec_a", "Photon azimuth", 20, -3.2, 3.2);
   TH1F *neutronReco_azimuth = new TH1F("nuRec_a", "Neutron azimuth", 20, -3.2, 3.2);
   TH1F *pionReco_azimuth = new TH1F("piRec_a", "Pion azimuth", 20, -3.2, 3.2);
+
+  //p_T for linked photons x photon weight
+  TH2F *resPhRecoPtXWeight = new TH2F("rPh_ptXW", "p_{T} of photons x weight", 20, 0, 1500, 20, 0, 1);
 
   //creates a reader that will traverse the events of the simulation
   TTreeReader myReader("MyLCTuple", openFile);
@@ -152,7 +160,7 @@ void filter_single()
       rcmoTemp.SetXYZ(rcmox_RA.At(i), rcmoy_RA.At(i), rcmoz_RA.At(i));
 
       //if that particle is an electron or photon, add it the sum variables (this accounts for particle mis-identification)
-      if(abs(rctyp_RA.At(i)) == 11 || abs(rctyp_RA.At(i)) == 22 || abs(rctyp_RA.At(i)) == 211) {
+      if(abs(rctyp_RA.At(i)) == 11 || abs(rctyp_RA.At(i)) == 22) {
 	for(int j = 0; j < r2f_RA.GetSize(); j++) {
 	  if(r2f_RA.At(j) == i && mcgst_RA.At(r2t_RA.At(j))) {
 	    rcmoSumTemp.SetXYZ(rcmoSumTemp.X() + rcmoTemp.X(), rcmoSumTemp.Y() + rcmoTemp.Y(), rcmoSumTemp.Z() + rcmoTemp.Z());
@@ -247,7 +255,7 @@ void filter_single()
 	r2wTemp = r2w_RA.At(i);
 
 	//checks to see if the truth particle is an electron, if the reconstructed particle is a photon, and if the truth particle is an originial generating particle
-	if(abs(mcpdg_RA.At(r2tTemp)) == 11 && (abs(rctyp_RA.At(r2fTemp)) == 22 || abs(rctyp_RA.At(r2fTemp)) == 211) && mcgst_RA.At(r2tTemp)) {
+	if(abs(mcpdg_RA.At(r2tTemp)) == 11 && ((abs(rctyp_RA.At(r2fTemp)) == 22) || (abs(rctyp_RA.At(r2fTemp)) == 211)) && mcgst_RA.At(r2tTemp)) {
 	  if(r2wTemp > r2wMax) {
 	    r2wMax = r2wTemp;
 	    r2wMax_Index = i;
@@ -283,21 +291,48 @@ void filter_single()
       resBestMatch_PA->Fill(mcmoTemp.Theta() - rcmoTemp.Theta());
       resBestMatch_azimuth->Fill(mcmoTemp.Phi() - rcmoTemp.Phi());
 
+      //fills in the electron and proton sum histograms
+      realEPSum_pt->Fill(rcmoSumTemp.Perp());
+      realEPSum_PA->Fill(rcmoSumTemp.Theta());
+      realEPSum_azimuth->Fill(rcmoSumTemp.Phi());
+
+      //fills in the electron and proton sum resolution histograms
+      resEPSum_pt->Fill(mcmoTemp.Perp() - rcmoSumTemp.Perp());
+      resEPSum_PA->Fill(mcmoTemp.Theta() - rcmoSumTemp.Theta());
+      resEPSum_azimuth->Fill(mcmoTemp.Phi() - rcmoSumTemp.Phi());
+
+      //fills in the electron and proton sum relative resolution histograms
+      relResEPSum_pt->Fill((mcmoTemp.Perp() - rcmoSumTemp.Perp()) / mcmoTemp.Perp());
+      relResEPSum_PA->Fill((mcmoTemp.Theta() - rcmoSumTemp.Theta()) / mcmoTemp.Theta());
+      relResEPSum_azimuth->Fill((mcmoTemp.Phi() - rcmoSumTemp.Phi()) / mcmoTemp.Phi());
+
       if(photonMatch) {
 	resPhotonReco_pt->Fill(mcmoTemp.Perp() - rcmoTemp.Perp());
 	resPhotonReco_PA->Fill(mcmoTemp.Theta() - rcmoTemp.Theta());
 	resPhotonReco_azimuth->Fill(mcmoTemp.Phi() - rcmoTemp.Phi());
 
-	if(tsome_RA.GetSize() > 0){
+	if(tsome_RA.GetSize() > 0) {
 	  recoTrackLink_pt->Fill(((0.3 * 3.57) / tsome_RA.At(0)) / 1000);
 	  resTrackLink_pt->Fill(mcmoTemp.Perp() - abs(((0.3 * 3.57) / tsome_RA.At(0)) / 1000));
 	}
+	
+	realPhWeights_Hist->Fill(r2wMax);
+
+	realPhoton_pt->Fill(mcmoTemp.Perp());
+	realPhoton_PA->Fill(mcmoTemp.Theta());
+	realPhoton_azimuth->Fill(mcmoTemp.Phi());
+	
+	resPhRecoPtXWeight->Fill(mcmoTemp.Perp() - rcmoTemp.Perp(), r2wMax);
       }
       if(pionMatch) {
 	resPionReco_pt->Fill(mcmoTemp.Perp() - rcmoTemp.Perp());
 	resPionReco_PA->Fill(mcmoTemp.Theta() - rcmoTemp.Theta());
 	resPionReco_azimuth->Fill(mcmoTemp.Phi() - rcmoTemp.Phi());
-      }
+
+	realPion_pt->Fill(mcmoTemp.Perp());
+	realPion_PA->Fill(mcmoTemp.Theta());
+	realPion_azimuth->Fill(mcmoTemp.Phi());
+      }      
     }
     
     count++;
@@ -309,21 +344,6 @@ void filter_single()
 
     //finds the difference between the truth and reconstructed particles (sum of photons and electrons)
     if(rcmoSumTemp.X() != 0 || rcmoSumTemp.Y() != 0 || rcmoSumTemp.Z() != 0){
-
-      //fills in the electron and proton sum histograms
-      realEPSum_pt->Fill(rcmoSumTemp.Perp());
-      realEPSum_PA->Fill(rcmoSumTemp.Theta());
-      realEPSum_azimuth->Fill(rcmoSumTemp.Phi());
-      
-      //fills in the electron and proton sum resolution histograms
-      resEPSum_pt->Fill(mcmoTemp.Perp() - rcmoSumTemp.Perp());
-      resEPSum_PA->Fill(mcmoTemp.Theta() - rcmoSumTemp.Theta());
-      resEPSum_azimuth->Fill(mcmoTemp.Phi() - rcmoSumTemp.Phi());
-
-      //fills in the electron and proton sum relative resolution histograms
-      relResEPSum_pt->Fill((mcmoTemp.Perp() - rcmoSumTemp.Perp()) / mcmoTemp.Perp());
-      relResEPSum_PA->Fill((mcmoTemp.Theta() - rcmoSumTemp.Theta()) / mcmoTemp.Theta());
-      relResEPSum_azimuth->Fill((mcmoTemp.Phi() - rcmoSumTemp.Phi()) / mcmoTemp.Phi());
     }    
   }
 
@@ -338,7 +358,7 @@ void filter_single()
   //=====================================//
 
   //draws the pt histograms for electrons, photons, and neutrons on top of each other
-  THStack *hs = new THStack("hs", "Transverse momenta of electrons, photons, and neutrons;Transverse momentum (GeV);Count");
+  THStack *hs = new THStack("hs", "Transverse momenta of electrons, photons, and neutrons;p_{T} (GeV);Count");
 
   c->SetLogy();
   
@@ -414,7 +434,7 @@ void filter_single()
   //==============================//
   
   //draws the two pt histograms on each other
-  hs = new THStack("hs", "pt of linked generating electrons and all generating electrons (no BIB);Transverse momentum (GeV);Count");
+  hs = new THStack("hs", "pt of linked generating electrons and all generating electrons ;p_{T} (GeV);Count");
 
   realAll_pt->SetLineColor(kBlue);
   realPassed_pt->SetLineColor(kRed);
@@ -432,7 +452,7 @@ void filter_single()
   c = new TCanvas();
 
   //rinse and repeat for the polar angle instead of the transverse momentum
-  hs = new THStack("hs", "Polar angle of linked generating electrons and all generating electrons (no BIB);Polar angle (Rads);Count");
+  hs = new THStack("hs", "Polar angle of linked generating electrons and all generating electrons ;Polar angle (Rads);Count");
   
   realAll_PA->SetLineColor(kBlue);
   realPassed_PA->SetLineColor(kRed);
@@ -450,7 +470,7 @@ void filter_single()
   c = new TCanvas();
 
   //rinse and repeat for the azimuth instead of the transverse momentum
-  hs = new THStack("hs", "Azimuth of linked generating electrons and all generating electrons (no BIB);Azimuth (Rads);Count");
+  hs = new THStack("hs", "Azimuth of linked generating electrons and all generating electrons ;Azimuth (Rads);Count");
 
   realAll_azimuth->SetLineColor(kBlue);
   realPassed_azimuth->SetLineColor(kRed);
@@ -472,7 +492,7 @@ void filter_single()
   //====================================================//
 
   //draws the two pt histograms on each other
-  hs = new THStack("hs", "pt of linked particles and all generating electrons (no BIB);Transverse momentum (GeV);Count");
+  hs = new THStack("hs", "pt of linked particles and all generating electrons;p_{T} (GeV);Count");
 
   realAll_pt->SetLineColor(kBlue);
   realAllPassed_pt->SetLineColor(kRed);
@@ -490,7 +510,7 @@ void filter_single()
   c = new TCanvas();
 
   //rinse and repeat for the polar angle instead of the transverse momentum
-  hs = new THStack("hs", "Polar angle of linked particles and all generating electrons (no BIB);Polar angle (Rads);Count");
+  hs = new THStack("hs", "Polar angle of linked particles and all generating electrons;Polar angle (Rads);Count");
 
   realAll_PA->SetLineColor(kBlue);
   realAllPassed_PA->SetLineColor(kRed);
@@ -508,7 +528,7 @@ void filter_single()
   c = new TCanvas();
 
   //rinse and repeat for the azimuth instead of the transverse momentum
-  hs = new THStack("hs", "Azimuth of linked particles and all generating electrons (no BIB);Azimuth (Rads);Count");
+  hs = new THStack("hs", "Azimuth of linked particles and all generating electrons;Azimuth (Rads);Count");
 
   realAll_azimuth->SetLineColor(kBlue);
   realAllPassed_azimuth->SetLineColor(kRed);
@@ -530,7 +550,7 @@ void filter_single()
   //=======================================//
 
   //draws the resolution of the transverse momentum of different linking methods
-  hs = new THStack("hs", "Resolution of different linking methods (no BIB);Transverse momentum (GeV);Count");
+  hs = new THStack("hs", "Resolution of different linking methods;Truth - Reconstructed p_{T} (GeV);Count");
 
   diffPt_Hist->SetLineColor(kBlue);
   resEPSum_pt->SetLineColor(kRed);
@@ -550,7 +570,7 @@ void filter_single()
   c = new TCanvas();
 
   //draws the resolution of the polar angle of different linking methods
-  hs = new THStack("hs", "Resolution of different linking methods (no BIB);Polar angle (GeV);Count");
+  hs = new THStack("hs", "Resolution of different linking methods;Truth - Reconstructed Polar angle (rads);Count");
 
   diffPA_Hist->SetLineColor(kBlue);
   resEPSum_PA->SetLineColor(kRed);
@@ -570,7 +590,7 @@ void filter_single()
   c = new TCanvas();
 
   //draws the resolution of the azimuth of different linking methods
-  hs = new THStack("hs", "Resolution of different linking methods (no BIB);Azimuth (GeV);Count");
+  hs = new THStack("hs", "Resolution of different linking methods;Truth - Reconstructed Azimuth (rads);Count");
 
   diffA_Hist->SetLineColor(kBlue);
   resEPSum_azimuth->SetLineColor(kRed);
@@ -592,6 +612,96 @@ void filter_single()
   ///////////////
   //SOLO GRAPHS//
   ///////////////
+
+  //draws the histograms of the truth transverse momentum
+  realAll_pt->Draw();
+  realAll_pt->SetTitle("True transverse momentum of electrons");
+  realAll_pt->GetXaxis()->SetTitle("p_{T} (GeV)");
+  realAll_pt->GetYaxis()->SetTitle("Count");
+
+  c->SaveAs(saveDir + "/truthHists/truthPt.png");
+  c->Close();
+  c = new TCanvas();
+
+  //draws the histograms of the truth polar angle
+  realAll_PA->Draw();
+  realAll_PA->SetTitle("True polar angle of electrons");
+  realAll_PA->GetXaxis()->SetTitle("Polar angle (rads)");
+  realAll_PA->GetYaxis()->SetTitle("Count");
+
+  c->SaveAs(saveDir + "/truthHists/truthPA.png");
+  c->Close();
+  c = new TCanvas();
+
+  //draws the histograms of the truth azimuth
+  realAll_azimuth->Draw();
+  realAll_azimuth->SetTitle("True azimuth of electrons");
+  realAll_azimuth->GetXaxis()->SetTitle("Azimuth (rads)");
+  realAll_azimuth->GetYaxis()->SetTitle("Count");
+
+  c->SaveAs(saveDir + "/truthHists/truthAzimuth.png");
+  c->Close();
+  c = new TCanvas();
+
+  //draws the histogram of photon transverse momentum
+  realPhoton_pt->Draw();
+  realPhoton_pt->SetTitle("Transverse momentum of photons");
+  realPhoton_pt->GetXaxis()->SetTitle("p_{T} (GeV)");
+  realPhoton_pt->GetYaxis()->SetTitle("Count");
+
+  c->SaveAs(saveDir + "/photonHists/photonPt.png");
+  c->Close();
+  c = new TCanvas();
+
+  //draws the histogram of photon polar angle
+  realPhoton_PA->Draw();
+  realPhoton_PA->SetTitle("Polar angle of photons");
+  realPhoton_PA->GetXaxis()->SetTitle("Polar angle (rads)");
+  realPhoton_PA->GetYaxis()->SetTitle("Count");
+
+  c->SaveAs(saveDir + "/photonHists/photonPA.png");
+  c->Close();
+  c = new TCanvas();
+
+  //draws the histogram of photon azimuth
+  realPhoton_azimuth->Draw();
+  realPhoton_azimuth->SetTitle("Azimuth of linked photons");
+  realPhoton_azimuth->GetXaxis()->SetTitle("Azimuth (rads)");
+  realPhoton_azimuth->GetYaxis()->SetTitle("Count");
+
+  c->SaveAs(saveDir + "/photonHists/photonAzimuth.png");
+  c->Close();
+  c = new TCanvas();
+
+  //draws the histogram of pion transverse momentum
+  realPion_pt->Draw();
+  realPion_pt->SetTitle("Transverse momentum of pions");
+  realPion_pt->GetXaxis()->SetTitle("p_{T} (GeV)");
+  realPion_pt->GetYaxis()->SetTitle("Count");
+
+  c->SaveAs(saveDir + "/pionHists/pionPt.png");
+  c->Close();
+  c = new TCanvas();
+
+  //draws the histogram of pion polar angle
+  realPion_PA->Draw();
+  realPion_PA->SetTitle("Polar angle of pions");
+  realPion_PA->GetXaxis()->SetTitle("Polar angle (rads)");
+  realPion_PA->GetYaxis()->SetTitle("Count");
+
+  c->SaveAs(saveDir + "/pionHists/pionPA.png");
+  c->Close();
+  c = new TCanvas();
+
+  //draws the histogram of pion azimuth
+  realPion_azimuth->Draw();
+  realPion_azimuth->SetTitle("Azimuth of linked pions");
+  realPion_azimuth->GetXaxis()->SetTitle("Azimuth (rads)");
+  realPion_azimuth->GetYaxis()->SetTitle("Count");
+
+  c->SaveAs(saveDir + "/pionHists/pionAzimuth.png");
+  c->Close();
+  c = new TCanvas();
   
   //draws the histogram that shows the distrobution of the linked electron weights
   realElWeights_Hist->Draw();
@@ -613,13 +723,33 @@ void filter_single()
   c->Close();
   c = new TCanvas();
 
+  //draws the histogram that shows the distrobution of the relation weights for all particles
+  realPhWeights_Hist->Draw();
+  realPhWeights_Hist->SetTitle("Weights of linked photons");
+  realPhWeights_Hist->GetXaxis()->SetTitle("Weight");
+  realPhWeights_Hist->GetYaxis()->SetTitle("Count");
+
+  c->SaveAs(saveDir + "/weight/recoPhotonWeights.png");
+  c->Close();
+  c = new TCanvas();
+
   //draws a hist that hold the reco track link data for best match photons
   recoTrackLink_pt->Draw();
   recoTrackLink_pt->SetTitle("Reconstructed track link transverse momentum for best match photons");
-  recoTrackLink_pt->GetXaxis()->SetTitle("Truth - reconstructed (Gev)");
+  recoTrackLink_pt->GetXaxis()->SetTitle("Truth - reconstructed p_{T} (Gev)");
   recoTrackLink_pt->GetYaxis()->SetTitle("Count");
 
   c->SaveAs(saveDir + "/recoTrackLink_pt.png");
+  c->Close();
+  c = new TCanvas();
+
+  //the the graph showing transverse momentum for linked photons x weight
+  resPhRecoPtXWeight->Draw();
+  resPhRecoPtXWeight->SetTitle("p_{T} resolution of linked photons by weight of photons");
+  resPhRecoPtXWeight->GetXaxis()->SetTitle("Truth - reconstructed p_{T} (GeV)");
+  resPhRecoPtXWeight->GetYaxis()->SetTitle("Weight");
+
+  c->SaveAs(saveDir + "/2dGraphs/resPhPtXWeight.png");
   c->Close();
   c = new TCanvas();
 
@@ -630,7 +760,7 @@ void filter_single()
   //draws a hist that hold the differences in electron pt
   diffPt_Hist->Draw();
   diffPt_Hist->SetTitle("Difference in pt between all and reconstructed particles");
-  diffPt_Hist->GetXaxis()->SetTitle("Transverse momentum (GeV)");
+  diffPt_Hist->GetXaxis()->SetTitle("p_{T} (GeV)");
   diffPt_Hist->GetYaxis()->SetTitle("Count");
 
   c->SaveAs(saveDir + "/resolution/recoPt_diff.png");
@@ -731,7 +861,7 @@ void filter_single()
 
   //draws a hist that hold the truth particle and the best match link pt resolution for photons
   resPhotonReco_pt->Draw();
-  resPhotonReco_pt->SetTitle("Truth and best match link pt resolution for photons");
+  resPhotonReco_pt->SetTitle("Photon truth & best match p_{T} resolution, weight > 0.8");
   resPhotonReco_pt->GetXaxis()->SetTitle("Truth - reconstructed p_{T} (GeV)");
   resPhotonReco_pt->GetYaxis()->SetTitle("Count");
 
@@ -765,7 +895,7 @@ void filter_single()
 
   //draws a hist that hold the truth particle and the best match link pt resolution for pions
   resPionReco_pt->Draw();
-  resPionReco_pt->SetTitle("Truth and best match link pt resolution for pions");
+  resPionReco_pt->SetTitle("Pion truth & best match p_{T} resolution");
   resPionReco_pt->GetXaxis()->SetTitle("Truth - reconstructed p_{T} (GeV)");
   resPionReco_pt->GetYaxis()->SetTitle("Count");
 
@@ -799,7 +929,7 @@ void filter_single()
 
   //draws a hist that hold the truth particle and the best match photon track link pt  resolution
   resTrackLink_pt->Draw();
-  resTrackLink_pt->SetTitle("Truth and best match link photon track transverse momentum resolution");
+  resTrackLink_pt->SetTitle("Truth & best match track p_{T} resolution for linked photons");
   resTrackLink_pt->GetXaxis()->SetTitle("Truth - reconstructed track p_{T} (GeV)");
   resTrackLink_pt->GetYaxis()->SetTitle("Count");
 
@@ -862,7 +992,7 @@ void filter_single()
   ////////////////
   
   //draws an efficiency graph for transverse momentum
-  TEfficiency* pt_Eff = new TEfficiency("pt_Eff", "Efficiency of transverse momentum reconstruction;Transverse momentum (GeV);Efficiency", 20, 0, 2000);
+  TEfficiency* pt_Eff = new TEfficiency("pt_Eff", "Efficiency of transverse momentum reconstruction;p_{T} (GeV);Efficiency", 20, 0, 2000);
   TFile* eff_File = new TFile("effFile.root", "recreate");
 
   //checks to make sure if the two histograms are compatable to make an efficiency histogram
@@ -871,14 +1001,6 @@ void filter_single()
     pt_Eff->SetTotalHistogram(*realAll_pt, "f");
     eff_File->Write();
   }
-
-  c->Clear();
-  
-  pt_Eff->Draw();
-
-  c->SaveAs(saveDir + "/efficiency/Eff_pt.png");
-  c->Close();
-  c = new TCanvas();
 
   //draws an efficiency graph for the polar angle
   TEfficiency* PA_Eff = new TEfficiency("PA_Eff", "Efficiency of polar angle reconstruction;Polar angle (Rads);Efficiency", 20, 0, 1.6);
@@ -891,14 +1013,6 @@ void filter_single()
     eff_File->Write();
   }
 
-  c->Clear();
-
-  PA_Eff->Draw();
-
-  c->SaveAs(saveDir + "/efficiency/Eff_PA.png");
-  c->Close();
-  c = new TCanvas();
-
   //draws an efficiency graph for the azimuth
   TEfficiency* azimuth_Eff = new TEfficiency("azimuth_Eff", "Efficiency of azimuth reconstruction;Azimuth (Rads);Efficiency", 20, -1.6, 1.6);
   eff_File = new TFile("effFile.root", "recreate");
@@ -910,18 +1024,8 @@ void filter_single()
     eff_File->Write();
   }
 
-  c->Clear();
-
-  azimuth_Eff->Draw();
-
-  c->SaveAs(saveDir + "/efficiency/Eff_azimuth.png");
-
-  c->Clear();
-  c->Close();
-  c = new TCanvas();
-
   //draws an efficiency graph for transverse momentum for best match particles
-  TEfficiency* ptAll_Eff = new TEfficiency("ptBM_Eff", "Efficiency of transverse momentum reconstruction for all particles;Transverse momentum (GeV);Efficiency", 20, 0, 2000);
+  TEfficiency* ptAll_Eff = new TEfficiency("ptBM_Eff", "Efficiency of transverse momentum reconstruction for all particles;p_{T} (GeV);Efficiency", 20, 0, 2000);
   eff_File = new TFile("effFile.root", "recreate");
   
   //checks to make sure if the two histograms are compatable to make an efficiency histogram
@@ -930,14 +1034,6 @@ void filter_single()
     ptAll_Eff->SetTotalHistogram(*realAll_pt, "f");
     eff_File->Write();
   }
-
-  c->Clear();
-
-  ptAll_Eff->Draw();
-
-  c->SaveAs(saveDir + "/efficiency/EffAll_pt.png");
-  c->Close();
-  c = new TCanvas();
 
   //draws an efficiency graph for the polar angle for best match particles
   TEfficiency* PAAll_Eff = new TEfficiency("PABM_Eff", "Efficiency of polar angle reconstruction for all particles;Polar angle (Rads);Efficiency", 20, 0, 1.6);
@@ -950,14 +1046,6 @@ void filter_single()
     eff_File->Write();
   }
 
-  c->Clear();
-
-  PAAll_Eff->Draw();
-
-  c->SaveAs(saveDir + "/efficiency/EffAll_PA.png");
-  c->Close();
-  c = new TCanvas();
-
   //draws an efficiency graph for the azimuth for best match particles
   TEfficiency* azimuthAll_Eff = new TEfficiency("azimuthBM_Eff", "Efficiency of azimuth reconstruction for all particles;Azimuth (Rads);Eff\
 iciency", 20, -1.6, 1.6);
@@ -969,13 +1057,6 @@ iciency", 20, -1.6, 1.6);
     azimuthAll_Eff->SetTotalHistogram(*realAll_azimuth, "f");
     eff_File->Write();
   }
-
-  c->Clear();
-
-  azimuthAll_Eff->Draw();
-
-  c->SaveAs(saveDir + "/efficiency/EffAll_azimuth.png");
-  c->Close();
 
   //setting new line colors so the plots are differentable when put on the same graph
   pt_Eff->SetLineColor(4);
@@ -994,21 +1075,126 @@ iciency", 20, -1.6, 1.6);
   PAAll_Eff->SetTitle("Electrons and photons");
   azimuthAll_Eff->SetTitle("Electrons and photons");
 
-  //creates a multigraph for the transverse momentum efficiencies
+  //draws an efficiency graph for the transverse momentum
   TMultiGraph *mg = new TMultiGraph();
+  c = new TCanvas();
+  
+  mg->Add(pt_Eff->CreateGraph());
+
+  mg->SetTitle("Transverse momentum reconstruction efficiency");
+  mg->GetXaxis()->SetTitle("p_{T} (GeV)");
+  mg->GetYaxis()->SetTitle("Efficiency");
+
+  mg->Draw("aZ");
+
+  c->SaveAs(saveDir + "/efficiency/Eff_pt.png");
+  c->Close();
+
+  //draws an efficiency graph for the polar angle
+  mg = new TMultiGraph();
+  c = new TCanvas();
+
+  mg->Add(PA_Eff->CreateGraph());
+
+  mg->SetTitle("Polar angle reconstruction efficiency");
+  mg->GetXaxis()->SetTitle("Polar angle (rads)");
+  mg->GetYaxis()->SetTitle("Efficiency");
+
+  mg->Draw("aZ");
+
+  c->SaveAs(saveDir + "/efficiency/Eff_PA.png");
+  c->Close();
+
+  //draws an efficiency graph for the azimuth
+  mg = new TMultiGraph();
+  c = new TCanvas();
+
+  mg->Add(azimuth_Eff->CreateGraph());
+
+  mg->SetTitle("Azimuth reconstruction efficiency");
+  mg->GetXaxis()->SetTitle("Azimuth (rads)");
+  mg->GetYaxis()->SetTitle("Efficiency");
+
+  mg->Draw("aZ");
+
+  c->SaveAs(saveDir + "/efficiency/Eff_azimuth.png");
+  c->Close();
+
+  //draws an efficiency graph for the transverse momentum for best match particles
+  mg = new TMultiGraph();
+  c = new TCanvas();
+
+  mg->Add(ptAll_Eff->CreateGraph());
+
+  mg->SetTitle("Efficiency of transverse momentum reconstruction for best match linking");
+  mg->GetXaxis()->SetTitle("p_{T} (GeV)");
+  mg->GetYaxis()->SetTitle("Efficiency");
+
+  mg->Draw("aZ");
+
+  c->SaveAs(saveDir + "/efficiency/EffAll_pt.png");
+  c->Close();
+
+  //draws an efficiency graph for the polar angle for best match particles
+  mg = new TMultiGraph();
+  c = new TCanvas();
+
+  mg->Add(PAAll_Eff->CreateGraph());
+
+  mg->SetTitle("Efficiency of polar angle reconstruction for best match linking");
+  mg->GetXaxis()->SetTitle("Polar angle (rads)");
+  mg->GetYaxis()->SetTitle("Efficiency");
+
+  mg->Draw("aZ");
+
+  c->SaveAs(saveDir + "/efficiency/EffAll_PA.png");
+  c->Close();
+
+  //draws an efficiency graph for the azimuth for best match particles
+  mg = new TMultiGraph();
+  c = new TCanvas();
+
+  mg->Add(azimuthAll_Eff->CreateGraph());
+
+  mg->SetTitle("Efficiency of azimuth reconstruction for best match linking");
+  mg->GetXaxis()->SetTitle("Azimuth (rads)");
+  mg->GetYaxis()->SetTitle("Efficiency");
+
+  mg->Draw("aZ");
+
+  c->SaveAs(saveDir + "/efficiency/EffAll_azimuth.png");
+  c->Close();
+
+  //draws an efficiency graph for the azimuth for best match particles
+  mg = new TMultiGraph();
+  c = new TCanvas();
+
+  mg->Add(ptAll_Eff->CreateGraph());
+
+  mg->SetTitle("Efficiency of transverse momentum reconstruction for all particles");
+  mg->GetXaxis()->SetTitle("p_{T} (GeV)");
+  mg->GetYaxis()->SetTitle("Efficiency");
+
+  mg->Draw("aZ");
+
+  c->SaveAs(saveDir + "/efficiency/EffAll_pt.png");
+  c->Close();
+
+  //creates a multigraph for the transverse momentum efficiencies
+  mg = new TMultiGraph();
   c = new TCanvas();
   
   mg->Add(pt_Eff->CreateGraph());
   mg->Add(ptAll_Eff->CreateGraph());
 
   mg->SetTitle("Transverse momentum reconstruction efficiencies");
-  mg->GetXaxis()->SetTitle("Transverse momentum (GeV)");
+  mg->GetXaxis()->SetTitle("p_{T} (GeV)");
   mg->GetYaxis()->SetTitle("Efficiency");
 
   mg->Draw("aZ");
 
   gPad->SetGrid(1, 0);
-  gPad->BuildLegend(0.1, 0.1, 0.3, 0.25, "");
+  gPad->BuildLegend(0.1, 0.1, 0.4, 0.35, "");
 
   c->SaveAs(saveDir + "/efficiency/multiBMEff_pt.png");
   c->Close();
@@ -1027,7 +1213,7 @@ iciency", 20, -1.6, 1.6);
   mg->Draw("aZ");
 
   gPad->SetGrid(1, 0);
-  gPad->BuildLegend(0.1, 0.1, 0.3, 0.25, "");
+  gPad->BuildLegend(0.35, 0.1, 0.65, 0.35, "");
 
   c->SaveAs(saveDir + "/efficiency/multiBMEff_PA.png");
   c->Close();
